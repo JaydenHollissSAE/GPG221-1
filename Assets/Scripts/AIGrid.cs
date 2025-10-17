@@ -27,6 +27,8 @@ public class AIGrid : MonoBehaviour
     public List<AIGridCell> walkableGrid = new List<AIGridCell>();
     public List<AIGridCell> stairsGrid = new List<AIGridCell>();
 
+    // Universal Gizmos showing toggles in the inspector
+
     [Tooltip("Required to be on for any Gizmos colour coding to show")]
     public bool showGizmos = false;
 
@@ -58,6 +60,7 @@ public class AIGrid : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
 
+        // List and array positions need to be ints not floats, so this forces them to be floats via rounding up to ensure they fit into the logic smoothly
         scaledCheckDistance = new Vector3(Mathf.CeilToInt(checkDistance.x), Mathf.CeilToInt(checkDistance.y), Mathf.CeilToInt(checkDistance.z));
         scaledCellSize = new Vector3(Mathf.CeilToInt(cellSize.x), Mathf.CeilToInt(cellSize.y), Mathf.CeilToInt(cellSize.z));
         for (int i = 0; i < extraCosts.Count; i++)
@@ -70,7 +73,7 @@ public class AIGrid : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (instance == this) instance = null;   
+        if (instance == this) instance = null;   // Allows the singleton to be reset via destruction other than scene loading
     }
 
 
@@ -99,15 +102,21 @@ public class AIGrid : MonoBehaviour
 
                         if (Physics.CheckBox(new Vector3(x, y, z), scaledCellSize, Quaternion.identity, layer))
                         {
+                            // Sets cell at hit location as unwalkable
                             grid[x, y, z] = new AIGridCell();
                             grid[x, y, z].state = "unwalkable";
                             grid[x, y, z].position = new Vector3(x, y, z);
+
+                            // Sets cells above at hit location as unwalkable
                             grid[x, y + (int)scaledCellSize.y, z] = new AIGridCell();
                             grid[x, y + (int)scaledCellSize.y, z].state = "unwalkable";
                             grid[x, y + (int)scaledCellSize.y, z].position = new Vector3(x, y + (scaledCellSize.y), z);
                             grid[x, y + ((int)scaledCellSize.y * 2), z] = new AIGridCell();
                             grid[x, y + ((int)scaledCellSize.y * 2), z].state = "unwalkable";
                             grid[x, y + ((int)scaledCellSize.y * 2), z].position = new Vector3(x, y + (scaledCellSize.y * 2), z);
+
+                            // Sets cells below at hit location as unwalkable
+
                             if (y - (int)scaledCellSize.y > 0)
                             {
                                 grid[x, y - (int)scaledCellSize.y, z] = new AIGridCell();
@@ -115,25 +124,25 @@ public class AIGrid : MonoBehaviour
                                 grid[x, y - (int)scaledCellSize.y, z].position = new Vector3(x, y + (scaledCellSize.y), z);
                             }
                         }
-                        else grid[x, y, z] = null;
+                        else grid[x, y, z] = null; // Sets the cell as null so it can be processed later
 
 
                     }
 
 
 
-                    if (grid[x, y, z] == null)
+                    if (grid[x, y, z] == null) // Doesn't run if the cell has already been marked as something
                     {
                         foreach (LayerMask layer in layers)
                         {
 
                             grid[x, y, z] = new AIGridCell();
-                            if (!Physics.CheckBox(new Vector3(x, y, z), scaledCellSize, Quaternion.identity, layer))
+                            if (!Physics.CheckBox(new Vector3(x, y, z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as air if nothing is present in it
                             {
                                 grid[x, y, z].state = "air";
                                 grid[x, y, z].position = new Vector3(x, y, z);
                             }
-                            else if (!Physics.CheckBox(new Vector3(x, y + scaledCellSize.y, z), scaledCellSize, Quaternion.identity, layer))
+                            else if (!Physics.CheckBox(new Vector3(x, y + scaledCellSize.y, z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as walkable if there is nothing in the above cell
                             {
 
                                 grid[x, y, z].state = "walkable";
@@ -146,7 +155,7 @@ public class AIGrid : MonoBehaviour
                                     if (extraCostsNames.Contains(hit.transform.tag)) grid[x, y, z].eCost = extraCosts[extraCostsNames.IndexOf(hit.transform.tag)].cost;
                                 }
                             }
-                            else if (!Physics.CheckBox(new Vector3(x, y + (scaledCellSize.y * 2), z), scaledCellSize, Quaternion.identity, layer))
+                            else if (!Physics.CheckBox(new Vector3(x, y + (scaledCellSize.y * 2), z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as stairs if there is something in the cell above, but not in the one on top of it
                             {
                                 grid[x, y, z].state = "stairs";
                                 grid[x, y, z].position = new Vector3(x, y, z);
@@ -160,7 +169,7 @@ public class AIGrid : MonoBehaviour
                             }
                             
 
-                            else
+                            else // Runs if there is things detected in the two cells above, setting the cell as unwalkable
                             {
                                 grid[x, y, z].state = "unwalkable";
                                 grid[x, y, z].position = new Vector3(x, y, z);
@@ -175,12 +184,14 @@ public class AIGrid : MonoBehaviour
                 }
             }
         }
-        Debug.Log(grid.Length);
+        //Debug.Log(grid.Length);
 
     }
 
     private void OnDrawGizmos()
     {
+        // Cell type visualisation through Gizmos
+
         if (showGizmos)
         {
             if (grid != null)
@@ -236,13 +247,6 @@ public class AIGrid : MonoBehaviour
 
         }
     }
-
-
-
-
-
-
-
 }
 
 [Serializable]

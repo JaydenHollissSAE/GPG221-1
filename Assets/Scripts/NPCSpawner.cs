@@ -27,7 +27,7 @@ public class NPCSpawner : MonoBehaviour
 
                 i++;
                 GameObject spawned = Instantiate(prefab);
-                spawned.transform.position = AIGrid.instance.walkableGrid[Random.Range(0, AIGrid.instance.walkableGrid.Count)].position;
+                spawned.transform.position = AIGrid.instance.walkableGrid[Random.Range(0, AIGrid.instance.walkableGrid.Count)].position; // Spawns in a random walkable cell
                 spawned.transform.parent = transform;
             }
         }
