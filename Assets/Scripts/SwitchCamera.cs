@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
+using static UnityEditor.Recorder.OutputPath;
 
 public class SwitchCamera : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class SwitchCamera : MonoBehaviour
     public bool isFreecam = false;
 
     public Camera freeCam;
+
+    public bool isAllCameras = false;
+
 
 
     private void Awake()
@@ -27,6 +31,7 @@ public class SwitchCamera : MonoBehaviour
         }
         else
         {
+            Debug.Log(Camera.main.rect);
             int currentIndex;
             if (isFreecam)
             {
@@ -36,11 +41,13 @@ public class SwitchCamera : MonoBehaviour
             }
             else
             {
+                if (isAllCameras) DisableAllCamerasMode();
+
                 try
                 {
                     currentIndex = cameras.IndexOf(Camera.main);
                 } catch { currentIndex = 0; }
-                Camera.main.enabled = false;
+                try { Camera.main.enabled = false; } catch { }
                 //cameras[currentIndex].enabled = false;
             }
             currentIndex += switchBy;
@@ -61,12 +68,60 @@ public class SwitchCamera : MonoBehaviour
     {
         if (!isFreecam)
         {
+            if (isAllCameras) DisableAllCamerasMode();
+
             isFreecam = true;
-            Camera.main.enabled = false;
+            try { Camera.main.enabled = false; } catch { }
             freeCam.enabled = true;
         }
     }
 
+
+    void DisableAllCamerasMode()
+    {
+        foreach (Camera cam in cameras)
+        {
+
+            cam.enabled = false;
+            cam.rect = new Rect(0f, 0f, 1f, 1f);
+            
+        }
+        isAllCameras = false;
+        return;
+    }
+
+    public void EnableAllCameras()
+    {
+        if (!isAllCameras)
+        {
+            isAllCameras = true;
+
+            if (isFreecam)
+            {
+                isFreecam = false;
+                freeCam.enabled = false;
+            }
+
+            float root = Mathf.Sqrt(cameras.Count);
+            Debug.Log(root);
+            for (int i = 0; i < root; i++)
+            {
+                for (int j = 0; j < root; j++)
+                {
+                    Camera cam = cameras[((int)root*i)+j];
+                    float x;
+                    float y;
+                    x = (i) / root;
+                    y = (j) / root;
+
+                    cam.rect = new Rect(x, y, (1f / root), (1f / root));
+                    cam.enabled = true;
+                }
+            }
+
+
+        }
+    }
 
 
 

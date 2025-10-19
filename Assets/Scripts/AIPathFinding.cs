@@ -26,7 +26,7 @@ public class AIPathFinding : MonoBehaviour
 
     Rigidbody rb;
 
-
+     
     public UnityEvent clearPathToVisualisation;
     public UnityEvent clearGoalVisualisation;
     public UnityEvent clearCalculatedPathVisualisation;
