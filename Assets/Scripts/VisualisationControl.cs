@@ -37,7 +37,7 @@ public class VisualisationControl : MonoBehaviour
 
         if (agent != null)
         {
-            AIPathFinding pathFinding = agent.GetComponent<AIPathFinding>();
+            AIPathFindingBase pathFinding = agent.GetComponent<AIPathFindingBase>();
             if (pathFinding != null)
             {
                 switch (state)
@@ -91,7 +91,7 @@ public class VisualisationControl : MonoBehaviour
             if (agent != null && state != "" || checkedTimes > 100)
             {
                 setSubscription = true;
-                AIPathFinding pathFinding = agent.GetComponent<AIPathFinding>();
+                AIPathFindingBase pathFinding = agent.GetComponent<AIPathFindingBase>();
                 if (pathFinding != null)
                 {
                     switch (state)

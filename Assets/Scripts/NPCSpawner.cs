@@ -11,15 +11,20 @@ public class NPCSpawner : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(Spawn());
+        StartCoroutine(Spawn(spawnAmount));
     }
 
-    IEnumerator Spawn()
+    public void DoSpawn(int amount = 1)
+    {
+        StartCoroutine(Spawn(amount));
+    }
+
+    IEnumerator Spawn(int amount)
     {
         int i = 0;
         if (spawnerEnabled)
         {
-            while (i < spawnAmount)
+            while (i < amount)
             {
                 yield return new WaitForSeconds(spawnDelay);
 
