@@ -45,11 +45,18 @@ public class AIPathFindingGround : AIPathFindingBase
 
 
                 // Looks towards the desired path position and moves towards it
+
+                Vector3 lookPos;
+
                 if (pathCellPositions[0].y < characterY)
                 {
-                    transform.LookAt(new Vector3(pathCellPositions[0].x, transform.forward.y, pathCellPositions[0].z), Vector3.up);
+                    lookPos = new Vector3(pathCellPositions[0].x, transform.forward.y, pathCellPositions[0].z);
                 }
-                else transform.LookAt(pathCellPositions[0], Vector3.up);
+                else lookPos = pathCellPositions[0];
+
+                //lookPos.y = transform.position.y; // This fixes a few bugs reguarding to looking direction, but I like the bobbing heads too much to use the fix :>
+
+                transform.LookAt(lookPos, Vector3.up);
 
                 // I love this but it breaks when going down // I don't remember what this comment meant but I'll leave it because why not
                 rb.linearVelocity = transform.forward * 10f;
