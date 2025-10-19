@@ -1,7 +1,5 @@
-using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
-using static UnityEditor.Recorder.OutputPath;
 
 public class SwitchCamera : MonoBehaviour
 {
@@ -29,10 +27,10 @@ public class SwitchCamera : MonoBehaviour
         {
             EnableFreeCam();
         }
-        else
+        else if (cameras.Count != 1)
         {
             Debug.Log(Camera.main.rect);
-            int currentIndex;
+            int currentIndex = 0;
             if (isFreecam)
             {
                 isFreecam = false;
@@ -49,15 +47,15 @@ public class SwitchCamera : MonoBehaviour
                 } catch { currentIndex = 0; }
                 try { Camera.main.enabled = false; } catch { }
                 //cameras[currentIndex].enabled = false;
+                currentIndex += switchBy;
             }
-            currentIndex += switchBy;
-            while (currentIndex > cameras.Count - 1)
+            while (currentIndex >= cameras.Count)
             {
-                currentIndex = cameras.Count - 1 - currentIndex;
+                currentIndex = currentIndex - (cameras.Count);
             }
             while (currentIndex < 0)
             {
-                currentIndex = cameras.Count - 1 + currentIndex;
+                currentIndex = (cameras.Count - 1) + currentIndex;
             }
             cameras[currentIndex].enabled = true;
         }
@@ -77,13 +75,13 @@ public class SwitchCamera : MonoBehaviour
     }
 
 
-    void DisableAllCamerasMode()
+    public void DisableAllCamerasMode()
     {
         foreach (Camera cam in cameras)
         {
 
-            cam.enabled = false;
             cam.rect = new Rect(0f, 0f, 1f, 1f);
+            cam.enabled = false;
             
         }
         isAllCameras = false;
