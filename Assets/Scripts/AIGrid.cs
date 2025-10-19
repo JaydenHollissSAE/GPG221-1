@@ -30,26 +30,36 @@ public class AIGrid : MonoBehaviour
     // Universal Gizmos showing toggles in the inspector
 
     [Tooltip("Required to be on for any Gizmos colour coding to show")]
-    public bool showGizmos = false;
+    public bool showVisualisations = false;
+    private bool oldShowVisualisations = false;
 
     [Tooltip("Red")]
-    public bool showGizmosUnwalkable = true;
+    public bool showVisualisationUnwalkable = true;
+    private bool oldShowVisualisationUnwalkable = true;
     [Tooltip("Yellow")]
-    public bool showGizmosStairs = true;
+    public bool showVisualisationStairs = true;
+    private bool oldShowVisualisationStairs = false;
     [Tooltip("Green")]
-    public bool showGizmosWalkable = true;
+    public bool showVisualisationWalkable = true;
+    private bool oldShowVisualisationWalkable = false;
     [Tooltip("Purple")]
-    public bool showGizmosAir = false;
+    public bool showVisualisationAir = false;
+    private bool oldShowVisualisationAir = false;
     [Tooltip("Orange")]
-    public bool showGizmosCalculatedPath = false;
+    public bool showVisualisationCalculatedPath = false;
+    private bool oldShowVisualisationPath = false;
     [Tooltip("Grey")]
-    public bool showGizmosJump = false;
+    public bool showVisualisationJump = false;
+    private bool oldShowVisualisationJump = false;
     [Tooltip("Black")]
-    public bool showGizmosPathTo = false;
+    public bool showVisualisationPathTo = false;
+    private bool oldShowVisualisationPathTo = false;
     [Tooltip("Cyan")]
-    public bool showGizmosGoal = false;
+    public bool showVisualisationGoal = false;
+    private bool oldShowVisualisationGoal = false;
     [Tooltip("Blue")]
-    public bool showGizmosError = false;
+    public bool showVisualisationError = false;
+    private bool oldShowVisualisationError = false;
 
 
     private void Awake()
@@ -75,6 +85,69 @@ public class AIGrid : MonoBehaviour
     {
         if (instance == this) instance = null;   // Allows the singleton to be reset via destruction other than scene loading
     }
+
+
+    private void FixedUpdate()
+    {
+        if (showVisualisations != oldShowVisualisations)
+        {
+            oldShowVisualisations = showVisualisations;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+        if (showVisualisationUnwalkable != oldShowVisualisationUnwalkable)
+        {
+            oldShowVisualisationUnwalkable = showVisualisationUnwalkable;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+
+        if (showVisualisationStairs != oldShowVisualisationStairs)
+        {
+            oldShowVisualisationStairs = showVisualisationStairs;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+
+        if (showVisualisationWalkable != oldShowVisualisationWalkable)
+        {
+            oldShowVisualisationWalkable = showVisualisationWalkable;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+
+        if (showVisualisationAir != oldShowVisualisationAir)
+        {
+            oldShowVisualisationAir = showVisualisationAir;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+
+        if (showVisualisationCalculatedPath != oldShowVisualisationPath)
+        {
+            oldShowVisualisationPath = showVisualisationCalculatedPath;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+
+        if (showVisualisationJump != oldShowVisualisationJump)
+        {
+            oldShowVisualisationJump = showVisualisationJump;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+
+        if (showVisualisationPathTo != oldShowVisualisationPathTo)
+        {
+            oldShowVisualisationPathTo = showVisualisationPathTo;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+
+        if (showVisualisationGoal != oldShowVisualisationGoal)
+        {
+            oldShowVisualisationGoal = showVisualisationGoal;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+        if (showVisualisationError != oldShowVisualisationError)
+        {
+            oldShowVisualisationError = showVisualisationError;
+            VisualisationSetter.instance.updateVisuals = true;
+        }
+
+}
 
 
     void GenerateGrid()
@@ -107,13 +180,20 @@ public class AIGrid : MonoBehaviour
                             grid[x, y, z].state = "unwalkable";
                             grid[x, y, z].position = new Vector3(x, y, z);
 
+                            //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, "unwalkable"); // Disabled for build optimisation
+
                             // Sets cells above at hit location as unwalkable
                             grid[x, y + (int)scaledCellSize.y, z] = new AIGridCell();
                             grid[x, y + (int)scaledCellSize.y, z].state = "unwalkable";
                             grid[x, y + (int)scaledCellSize.y, z].position = new Vector3(x, y + (scaledCellSize.y), z);
+
+                            //VisualisationSetter.instance.SpawnVisualisation(grid[x, y + (int)scaledCellSize.y, z].position, scaledCellSize, "unwalkable"); // Disabled for build optimisation
+
                             grid[x, y + ((int)scaledCellSize.y * 2), z] = new AIGridCell();
                             grid[x, y + ((int)scaledCellSize.y * 2), z].state = "unwalkable";
                             grid[x, y + ((int)scaledCellSize.y * 2), z].position = new Vector3(x, y + (scaledCellSize.y * 2), z);
+
+                            //VisualisationSetter.instance.SpawnVisualisation(grid[x, y + ((int)scaledCellSize.y * 2), z].position, scaledCellSize, "unwalkable"); // Disabled for build optimisation
 
                             // Sets cells below at hit location as unwalkable
 
@@ -122,6 +202,8 @@ public class AIGrid : MonoBehaviour
                                 grid[x, y - (int)scaledCellSize.y, z] = new AIGridCell();
                                 grid[x, y - (int)scaledCellSize.y, z].state = "unwalkable";
                                 grid[x, y - (int)scaledCellSize.y, z].position = new Vector3(x, y + (scaledCellSize.y), z);
+
+                                //VisualisationSetter.instance.SpawnVisualisation(grid[x, y - (int)scaledCellSize.y, z].position, scaledCellSize, "unwalkable"); // Disabled for build optimisation
                             }
                         }
                         else grid[x, y, z] = null; // Sets the cell as null so it can be processed later
@@ -141,6 +223,9 @@ public class AIGrid : MonoBehaviour
                             {
                                 grid[x, y, z].state = "air";
                                 grid[x, y, z].position = new Vector3(x, y, z);
+
+                                //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, "air"); // Disabled for build optimisation
+
                             }
                             else if (!Physics.CheckBox(new Vector3(x, y + scaledCellSize.y, z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as walkable if there is nothing in the above cell
                             {
@@ -148,6 +233,9 @@ public class AIGrid : MonoBehaviour
                                 grid[x, y, z].state = "walkable";
                                 grid[x, y, z].position = new Vector3(x, y, z);
                                 walkableGrid.Add(grid[x, y, z]);
+
+                                //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, "walkable"); // Disabled for build optimisation
+
                                 RaycastHit hit;
                                 bool hitDetction = Physics.BoxCast(new Vector3(x, y, z), scaledCellSize, Vector3.zero, out hit);
                                 if (hitDetction)
@@ -159,6 +247,9 @@ public class AIGrid : MonoBehaviour
                             {
                                 grid[x, y, z].state = "stairs";
                                 grid[x, y, z].position = new Vector3(x, y, z);
+
+                                //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, "stairs"); // Disabled for build optimisation
+
                                 stairsGrid.Add(grid[x, y, z]);
                                 RaycastHit hit;
                                 bool hitDetction = Physics.BoxCast(new Vector3(x, y + scaledCellSize.y, z), scaledCellSize, Vector3.zero, out hit);
@@ -173,6 +264,8 @@ public class AIGrid : MonoBehaviour
                             {
                                 grid[x, y, z].state = "unwalkable";
                                 grid[x, y, z].position = new Vector3(x, y, z);
+
+                                //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, "unwalkable"); // Disabled for build optimisation
                             }
                         }
 
@@ -188,11 +281,11 @@ public class AIGrid : MonoBehaviour
 
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmos() // Used for map visualisation for performance purposes
     {
         // Cell type visualisation through Gizmos
 
-        if (showGizmos)
+        if (showVisualisations)
         {
             if (grid != null)
             {
@@ -205,35 +298,35 @@ public class AIGrid : MonoBehaviour
                             switch (grid[x, y, z].state)
                             {
                                 case "walkable":
-                                    if (showGizmosWalkable)
+                                    if (showVisualisationWalkable)
                                     {
                                         Gizmos.color = Color.green;
                                         Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
                                     }
                                     break;
                                 case "stairs":
-                                    if (showGizmosStairs)
+                                    if (showVisualisationStairs)
                                     {
                                         Gizmos.color = Color.yellow;
                                         Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
                                     }
                                     break;
                                 case "unwalkable":
-                                    if (showGizmosUnwalkable)
+                                    if (showVisualisationUnwalkable)
                                     {
                                         Gizmos.color = Color.red;
                                         Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
                                     }
                                     break;
                                 case "air":
-                                    if (showGizmosAir)
+                                    if (showVisualisationAir)
                                     {
                                         Gizmos.color = Color.magenta;
                                         Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
                                     }
                                     break;
                                 default: //For showing errors
-                                    if (showGizmosError)
+                                    if (showVisualisationError)
                                     {
                                         Gizmos.color = Color.blue;
                                         Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
@@ -247,6 +340,28 @@ public class AIGrid : MonoBehaviour
 
         }
     }
+
+    public void ToggleVisualisation(string state)
+    {
+        switch (state)
+        {
+            case "goal":
+                showVisualisationGoal = !showVisualisationGoal;
+                break;
+            case "pathTo":
+                showVisualisationPathTo = !showVisualisationPathTo;
+                break;
+            case "calculatedPath":
+                showVisualisationCalculatedPath = !showVisualisationCalculatedPath;
+                break;
+            case "jump":
+                showVisualisationJump = !showVisualisationJump;
+                break;
+            default: 
+                break;
+        }
+    }
+
 }
 
 [Serializable]
