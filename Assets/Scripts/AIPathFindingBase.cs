@@ -71,7 +71,7 @@ public class AIPathFindingBase : MonoBehaviour
         {
             settingPath = true;
             pastGoal = goal;
-            SetPathTo();
+            SetPathTo(goal);
         }
         return;
     }
@@ -94,9 +94,12 @@ public class AIPathFindingBase : MonoBehaviour
         return;
     }
 
-    protected virtual void SetPathTo() 
+    protected virtual void SetPathTo(Vector3 myGoal = new Vector3()) 
     {
-
+        if (myGoal == new Vector3())
+        {
+            myGoal = goal;
+        }
         clearPathToVisualisation.Invoke();
         
 
@@ -108,15 +111,15 @@ public class AIPathFindingBase : MonoBehaviour
         //if (Mathf.Abs(goal.y - transform.position.y) >= AIGrid.instance.scaledCellSize.y/2)
         
         // If the character's Y position is the same as the goal, the pathTo step value is set to the goal
-        if (localCharacterY == goal.y)
+        if (localCharacterY == myGoal.y)
         {
-            pathTo = goal;
+            pathTo = myGoal;
         }
 
         else // Sets a pathTo point based on where the goal is reliative to the character
         {
 
-            if (goal.y < localCharacterY) // If the goal is below the character the pathTo value needs to be going downwards
+            if (myGoal.y < localCharacterY) // If the goal is below the character the pathTo value needs to be going downwards
             {
                 localCharacterY -= (int)AIGrid.instance.scaledCellSize.y*2; // Needed or pathTo gets stuck in platforms and freaks out
                 //localCharacterY -= (int)AIGrid.instance.scaledCellSize.y; // Has to be the size of 2 cells rather than 1 or the goal is stuck in the floor and can't be path finded to

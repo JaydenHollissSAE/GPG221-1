@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class AIPathFindingSmartGround : AIPathFindingGround
@@ -51,10 +49,36 @@ public class AIPathFindingSmartGround : AIPathFindingGround
 
     protected override void Update()
     {
-        
         base.Update();
     }
 
+
+    protected virtual void GoTo()
+    {
+        Vector3 myGoal = goal;
+        switch (currentGoal)
+        {
+            default:
+                break;
+            case AIGoals.fetch:
+                foreach (ItemData item in seenItems)
+                {
+                    if (item.type == fetchingItem)
+                    {
+                        myGoal = item.position;
+                    }
+                }
+                break;
+            case AIGoals.wander:
+                break;
+        }
+        SetPathTo(myGoal);
+    }
+
+    protected virtual void Wander()
+    {
+
+    }
 
     protected virtual void CheckItems()
     {
@@ -63,11 +87,16 @@ public class AIPathFindingSmartGround : AIPathFindingGround
         {
             if (itemInFront.type == ItemData.ItemTypes.key)
             {
-                CollectItem();
+                InteractItem(true);
             }
             else if (itemInFront.type == ItemData.ItemTypes.door)
             {
-                FetchItem(ItemData.ItemTypes.key);
+                if (inventory.Contains(ItemData.ItemTypes.key))
+                {
+                    InteractItem(false, AIGoals.fetch, ItemData.ItemTypes.key);
+                    FetchItem(ItemData.ItemTypes.door);
+                }
+                else FetchItem(ItemData.ItemTypes.key);
             }
         }
         return;
@@ -77,15 +106,21 @@ public class AIPathFindingSmartGround : AIPathFindingGround
     {
         currentGoal = AIGoals.fetch;
         fetchingItem = item;
+        return;
     }
-    protected virtual void CollectItem()
+
+    protected virtual void InteractItem(bool collect, AIGoals goal = AIGoals.goToGoal, ItemData.ItemTypes useItem = ItemData.ItemTypes.nothing)
     {
         inventory.Add(itemInFront.type);
         Destroy(itemInFront.gameObject);
         itemInFront = null;
-        currentGoal = AIGoals.goToGoal;
+        currentGoal = goal;
+        if (useItem != ItemData.ItemTypes.nothing)
+        {
+            inventory.Remove(useItem);
+        }
+        return;
     }
-
 
     protected virtual IEnumerator View()
     {
