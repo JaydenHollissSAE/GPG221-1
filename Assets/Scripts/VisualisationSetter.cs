@@ -21,6 +21,19 @@ public class VisualisationSetter : MonoBehaviour
     public List<VisualisationSpawnData> spawningQueue = new List<VisualisationSpawnData>();
 
 
+    public enum VisualisationStates
+    {
+        nullVal,
+        walkable,
+        stairs,
+        unwalkable,
+        air,
+        calculatedPath,
+        goal,
+        pathTo,
+        jump
+    }
+
     private void Awake()
     {
         if (instance == null)
@@ -143,7 +156,7 @@ public class VisualisationSetter : MonoBehaviour
     }
 
 
-    public void SpawnVisualisation(Vector3 position, Vector3 size, string state, GameObject agent = null)
+    public void SpawnVisualisation(Vector3 position, Vector3 size, VisualisationSetter.VisualisationStates state, GameObject agent = null)
     {
         VisualisationSpawnData data = new VisualisationSpawnData();
         data.position = position;
@@ -183,35 +196,35 @@ public class VisualisationSetter : MonoBehaviour
 
             switch (spawningQueue[0].state)
             {
-                case "walkable":
+                case VisualisationSetter.VisualisationStates.walkable:
                     colour = UnityEngine.Color.green;
                     walkableVisualisations.Add(spawned);
                     break;
-                case "stairs":
+                case VisualisationSetter.VisualisationStates.stairs:
                     colour = UnityEngine.Color.yellow;
                     stairsVisualisations.Add(spawned);
                     break;
-                case "unwalkable":
+                case VisualisationSetter.VisualisationStates.unwalkable:
                     colour = UnityEngine.Color.red;
                     unwalkableVisualisations.Add(spawned);
                     break;
-                case "air":
+                case VisualisationSetter.VisualisationStates.air:
                     colour = UnityEngine.Color.magenta;
                     airVisualisations.Add(spawned);
                     break;
-                case "calculatedPath":
+                case VisualisationSetter.VisualisationStates.calculatedPath:
                     colour = new UnityEngine.Color(1, 0.5f, 0);
                     calculatedPathVisualisations.Add(spawned);
                     break;
-                case "goal":
+                case VisualisationSetter.VisualisationStates.goal:
                     colour = UnityEngine.Color.cyan;
                     goalVisualisations.Add(spawned);
                     break;
-                case "pathTo":
+                case VisualisationSetter.VisualisationStates.pathTo:
                     colour = UnityEngine.Color.black;
                     pathToVisualisations.Add(spawned);
                     break;
-                case "jump":
+                case VisualisationSetter.VisualisationStates.jump:
                     colour = new UnityEngine.Color(0.5f, 0.5f, 0.5f);
                     jumpVisualisations.Add(spawned);
                     break;
@@ -245,6 +258,6 @@ public class VisualisationSpawnData
 {
     public Vector3 position;
     public Vector3 size;
-    public string state;
+    public VisualisationSetter.VisualisationStates state;
     public GameObject agent = null;
 }

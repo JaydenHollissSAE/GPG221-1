@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class AIGridCell
 {
-    public string state = "unwalkable";
+    public AIGrid.GridStates state = AIGrid.GridStates.unwalkable;
     public Vector3 position;
-    public float gCost = 100000f;
-    public float hCost = 100000f;
-    public float fCost = 100000f;
+    public float gCost = float.MaxValue;
+    public float hCost = float.MaxValue;
+    public float fCost = float.MaxValue;
     public float eCost = 0f; //Extra Cost
 }

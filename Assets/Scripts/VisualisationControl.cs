@@ -7,7 +7,7 @@ public class VisualisationControl : MonoBehaviour
     public Renderer myRenderer;
     public bool imEnabled = true;
     public GameObject agent = null;
-    public string state = "";
+    public VisualisationSetter.VisualisationStates state = VisualisationSetter.VisualisationStates.nullVal;
     private bool setSubscription = false;
     int checkedTimes = 0;
     private void Start()
@@ -42,22 +42,22 @@ public class VisualisationControl : MonoBehaviour
             {
                 switch (state)
                 {
-                    case "goal":
+                    case VisualisationSetter.VisualisationStates.goal:
                         {
                             pathFinding.clearGoalVisualisation.RemoveListener(DestroyMe);
                             break;
                         }
-                    case "pathTo":
+                    case VisualisationSetter.VisualisationStates.pathTo:
                         {
                             pathFinding.clearPathToVisualisation.RemoveListener(DestroyMe);
                             break;
                         }
-                    case "calculatedPath":
+                    case VisualisationSetter.VisualisationStates.calculatedPath:
                         {
                             pathFinding.clearCalculatedPathVisualisation.RemoveListener(DestroyMe);
                             break;
                         }
-                    case "jump":
+                    case VisualisationSetter.VisualisationStates.jump:
                         {
                             pathFinding.clearJumpVisualisation.RemoveListener(DestroyMe);
                             break;
@@ -88,7 +88,7 @@ public class VisualisationControl : MonoBehaviour
         if (!setSubscription) 
         {
             checkedTimes++;
-            if (agent != null && state != "" || checkedTimes > 100)
+            if (agent != null && state != VisualisationSetter.VisualisationStates.nullVal || checkedTimes > 100)
             {
                 setSubscription = true;
                 AIPathFindingBase pathFinding = agent.GetComponent<AIPathFindingBase>();
@@ -96,22 +96,22 @@ public class VisualisationControl : MonoBehaviour
                 {
                     switch (state)
                     {
-                        case "goal":
+                        case VisualisationSetter.VisualisationStates.goal:
                             {
                                 pathFinding.clearGoalVisualisation.AddListener(DestroyMe);
                                 break;
                             }
-                        case "pathTo":
+                        case VisualisationSetter.VisualisationStates.pathTo:
                             {
                                 pathFinding.clearPathToVisualisation.AddListener(DestroyMe);
                                 break;
                             }
-                        case "calculatedPath":
+                        case VisualisationSetter.VisualisationStates.calculatedPath:
                             {
                                 pathFinding.clearCalculatedPathVisualisation.AddListener(DestroyMe);
                                 break;
                             }
-                        case "jump":
+                        case VisualisationSetter.VisualisationStates.jump:
                             {
                                 pathFinding.clearJumpVisualisation.AddListener(DestroyMe);
                                 break;

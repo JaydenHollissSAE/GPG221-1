@@ -23,6 +23,8 @@ public class AIPathFindingBase : MonoBehaviour
     protected int pathResetCounter = 0;
 
 
+    protected static Vector3 worldZero = Vector3.zero;
+
 
     public UnityEvent clearPathToVisualisation;
     public UnityEvent clearGoalVisualisation;
@@ -36,10 +38,23 @@ public class AIPathFindingBase : MonoBehaviour
 
 
 
-    protected void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         //Debug.Log(Vector3.Distance(transform.position, goal));
         //Debug.Log(settingGoal);
+
+        CheckGoal();
+
+        SetCharacterY();
+
+        CheckPathTo();
+
+        CheckCalculatedPath();
+
+    }
+
+    protected virtual void CheckGoal()
+    {
         if (!settingGoal && (goal == Vector3.zero || Input.GetKeyDown(KeyCode.Tab) || Vector3.Distance(transform.position, goal) < 1.0f || pathResetCounter >= 10)) // Tab used as debug control to force a change
         {
             settingGoal = true;
@@ -47,16 +62,22 @@ public class AIPathFindingBase : MonoBehaviour
             pathResetCounter = 0;
             SetGoal();
         }
+        return;
+    }
 
-        characterY = (int)Mathf.Floor(transform.position.y);
-
+    protected virtual void CheckPathTo()
+    {
         if (!settingPath && (goal != pastGoal || ((goal.y >= characterY && characterY != pathTo.y) || (goal.y < characterY && characterY - (int)AIGrid.instance.scaledCellSize.y * 2 != pathTo.y)) || pathTo == Vector3.zero || characterY == 10000000 || Input.GetKeyDown(KeyCode.LeftShift))) // Left Shift used as debug control to force a change
         {
             settingPath = true;
             pastGoal = goal;
             SetPathTo();
         }
+        return;
+    }
 
+    protected virtual void CheckCalculatedPath()
+    {
         if (pathTo != pastPathTo) // Resets check value to allow resets and failsafes to work properly
         {
             pastPathTo = pathTo;
@@ -65,10 +86,15 @@ public class AIPathFindingBase : MonoBehaviour
         }
 
         if (!pathCalculated) StartCoroutine(CalculatePath());
-
     }
 
-    protected void SetPathTo() 
+    protected virtual void SetCharacterY()
+    {
+        characterY = (int)Mathf.Floor(transform.position.y);
+        return;
+    }
+
+    protected virtual void SetPathTo() 
     {
 
         clearPathToVisualisation.Invoke();
@@ -113,7 +139,7 @@ public class AIPathFindingBase : MonoBehaviour
             {
                 int x = Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.x);
                 int z = Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.z);
-                if ((AIGrid.instance.grid[x, localCharacterY, z].state == "stairs"))
+                if ((AIGrid.instance.grid[x, localCharacterY, z].state == AIGrid.GridStates.stairs))
                 {
                     //Debug.Log("Path found");
                     pathTo = AIGrid.instance.grid[x, localCharacterY, z].position;
@@ -123,7 +149,7 @@ public class AIPathFindingBase : MonoBehaviour
         }
 
 
-        VisualisationSetter.instance.SpawnVisualisation(pathTo, AIGrid.instance.scaledCellSize, "pathTo", gameObject);
+        VisualisationSetter.instance.SpawnVisualisation(pathTo, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.pathTo, gameObject);
             
 
         settingPath = false;
@@ -257,7 +283,7 @@ public class AIPathFindingBase : MonoBehaviour
                                 if (!openCells.Contains(checkingCell) && checkingCell != currentCell)
                                 {
 
-                                    if (!closedCells.Contains(checkingCell) && ((checkingCell.state == "walkable" || checkingCell.state == "stairs") && (AIGrid.instance.grid[checkingX + i, checkingY - (int)AIGrid.instance.scaledCellSize.y, checkingZ + j] == null || AIGrid.instance.grid[checkingX + i, checkingY - 1, checkingZ + j].state != "air")))
+                                    if (!closedCells.Contains(checkingCell) && ((checkingCell.state == AIGrid.GridStates.walkable || checkingCell.state == AIGrid.GridStates.stairs) && (AIGrid.instance.grid[checkingX + i, checkingY - (int)AIGrid.instance.scaledCellSize.y, checkingZ + j] == null || AIGrid.instance.grid[checkingX + i, checkingY - 1, checkingZ + j].state != AIGrid.GridStates.air)))
                                     {
                                         checkingCell.hCost = Vector3.Distance(checkingCell.position, pathTo);
                                         if (k == 0) checkingCell.gCost = currentCell.gCost + Vector3.Distance(currentCell.position, checkingCell.position);
@@ -325,7 +351,7 @@ public class AIPathFindingBase : MonoBehaviour
 
                 foreach (Vector3 pos1 in pathCellPositions)
                 {
-                    VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instance.scaledCellSize, "calculatedPath", gameObject);
+                    VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.calculatedPath, gameObject);
                 }
 
             }
@@ -343,7 +369,7 @@ public class AIPathFindingBase : MonoBehaviour
 
 
 
-    protected void OnDestroy()
+    protected virtual void OnDestroy()
     {
         try
         {
@@ -364,22 +390,29 @@ public class AIPathFindingBase : MonoBehaviour
     }
 
 
-    protected void SetGoal()
+    protected virtual void SetGoal(Vector3 newGoal = new Vector3())
     {
-        // Simple goal setting based on walkable locations
-        if (AIGrid.instance.walkableGrid.Count > 0)
+        if (newGoal != new Vector3())
         {
-            Vector3 tmpGoal = goal;
-            clearGoalVisualisation.Invoke();
+            // Simple goal setting based on walkable locations
+            if (AIGrid.instance.walkableGrid.Count > 0)
+            {
+                Vector3 tmpGoal = goal;
+                clearGoalVisualisation.Invoke();
 
+                goal = AIGrid.instance.walkableGrid[Random.Range(0, AIGrid.instance.walkableGrid.Count)].position;
 
+            }
 
-
-            goal = AIGrid.instance.walkableGrid[Random.Range(0, AIGrid.instance.walkableGrid.Count)].position;
-
-            VisualisationSetter.instance.SpawnVisualisation(goal, AIGrid.instance.scaledCellSize, "goal", gameObject);
         }
-        
+        else goal = newGoal;
+        try
+        {
+            VisualisationSetter.instance.SpawnVisualisation(goal, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.goal, gameObject);
+        }
+        catch { }
+
+
         settingGoal = false;
         StartCoroutine(AutoGoalReset());
     }

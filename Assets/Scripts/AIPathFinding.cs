@@ -7,6 +7,11 @@ using UnityEngine.Rendering;
 
 public class AIPathFinding : MonoBehaviour
 {
+    /// <summary>
+    /// Original Non-Compartmentalised Path Finding Script
+    /// For Archival purposes ONLY. Use Specilised Inherited Scripts instead
+    /// </summary>
+
 
     public Vector3 goal = Vector3.zero;
     public Vector3 pathTo = Vector3.zero;
@@ -124,7 +129,7 @@ public class AIPathFinding : MonoBehaviour
             {
                 int x = Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.x);
                 int z = Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.z);
-                if ((AIGrid.instance.grid[x, localCharacterY, z].state == "stairs"))
+                if ((AIGrid.instance.grid[x, localCharacterY, z].state == AIGrid.GridStates.stairs))
                 {
                     //Debug.Log("Path found");
                     pathTo = AIGrid.instance.grid[x, localCharacterY, z].position;
@@ -134,7 +139,7 @@ public class AIPathFinding : MonoBehaviour
         }
 
 
-        VisualisationSetter.instance.SpawnVisualisation(pathTo, AIGrid.instance.scaledCellSize, "pathTo", gameObject);
+        VisualisationSetter.instance.SpawnVisualisation(pathTo, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.pathTo, gameObject);
             
 
         settingPath = false;
@@ -268,7 +273,7 @@ public class AIPathFinding : MonoBehaviour
                                 if (!openCells.Contains(checkingCell) && checkingCell != currentCell)
                                 {
 
-                                    if (!closedCells.Contains(checkingCell) && ((checkingCell.state == "walkable" || checkingCell.state == "stairs") && (AIGrid.instance.grid[checkingX + i, checkingY - (int)AIGrid.instance.scaledCellSize.y, checkingZ + j] == null || AIGrid.instance.grid[checkingX + i, checkingY - 1, checkingZ + j].state != "air")))
+                                    if (!closedCells.Contains(checkingCell) && ((checkingCell.state == AIGrid.GridStates.walkable || checkingCell.state == AIGrid.GridStates.stairs) && (AIGrid.instance.grid[checkingX + i, checkingY - (int)AIGrid.instance.scaledCellSize.y, checkingZ + j] == null || AIGrid.instance.grid[checkingX + i, checkingY - 1, checkingZ + j].state != AIGrid.GridStates.air)))
                                     {
                                         checkingCell.hCost = Vector3.Distance(checkingCell.position, pathTo);
                                         if (k == 0) checkingCell.gCost = currentCell.gCost + Vector3.Distance(currentCell.position, checkingCell.position);
@@ -336,7 +341,7 @@ public class AIPathFinding : MonoBehaviour
 
                 foreach (Vector3 pos1 in pathCellPositions)
                 {
-                    VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instance.scaledCellSize, "calculatedPath", gameObject);
+                    VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.calculatedPath, gameObject);
                 }
 
             }
@@ -360,7 +365,7 @@ public class AIPathFinding : MonoBehaviour
             {
                 // Gets the closest path position to the character and removes one ones before that to prevent the following trying to go backwards
                 int closestIndex = 0;
-                float closestDistance = 10000f;
+                float closestDistance = float.MaxValue;
                 for (int i = 0; i < pathCellPositions.Count; i++)
                 {
                     Vector3 tmpPos = pathCellPositions[i];
@@ -408,7 +413,7 @@ public class AIPathFinding : MonoBehaviour
     {
         // Checks if anything is in the way of the character
         Vector3 outputPos = inputPos;
-        if (inputPos.y < characterY || AIGrid.instance.grid[(int)inputPos.x, (int)inputPos.y, (int)inputPos.z].state == "stairs") return inputPos; // Returns without doing anything if the target position is below the character or the target cell is stairs
+        if (inputPos.y < characterY || AIGrid.instance.grid[(int)inputPos.x, (int)inputPos.y, (int)inputPos.z].state == AIGrid.GridStates.stairs) return inputPos; // Returns without doing anything if the target position is below the character or the target cell is stairs
         else
         {
             RaycastHit hit;
@@ -433,8 +438,8 @@ public class AIPathFinding : MonoBehaviour
                     bool hitDetction2 = Physics.BoxCast(checkPos, AIGrid.instance.scaledCellSize, Vector3.zero, out hit2);
                     if (!hitDetction2) // If nothing hit, checks if the cell is able to be traversed, sets new target if able to be
                     {
-                        string state = AIGrid.instance.grid[(int)checkPos.x, (int)checkPos.y, (int)checkPos.z].state;
-                        if (state == "stairs" || state == "walkable")
+                        AIGrid.GridStates state = AIGrid.instance.grid[(int)checkPos.x, (int)checkPos.y, (int)checkPos.z].state;
+                        if (state == AIGrid.GridStates.stairs || state == AIGrid.GridStates.walkable)
                         {
                             outputPos = checkPos;
                             break;
@@ -483,7 +488,7 @@ public class AIPathFinding : MonoBehaviour
 
             goal = AIGrid.instance.walkableGrid[Random.Range(0, AIGrid.instance.walkableGrid.Count)].position;
 
-            VisualisationSetter.instance.SpawnVisualisation(goal, AIGrid.instance.scaledCellSize, "goal", gameObject);
+            VisualisationSetter.instance.SpawnVisualisation(goal, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.goal, gameObject);
         }
         
         settingGoal = false;
@@ -555,17 +560,17 @@ public class AIPathFinding : MonoBehaviour
 
             jumpPos = new Vector3(Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z));
 
-            VisualisationSetter.instance.SpawnVisualisation(jumpPos, AIGrid.instance.scaledCellSize, "jump", gameObject);
+            VisualisationSetter.instance.SpawnVisualisation(jumpPos, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.jump, gameObject);
 
 
-            string state = AIGrid.instance.grid[Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z)].state;
+            AIGrid.GridStates state = AIGrid.instance.grid[Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z)].state;
             //Debug.Log(state);
-            if (state == "stairs")
+            if (state == AIGrid.GridStates.stairs)
             {
                 rb.AddForce(Vector3.up * 10f, ForceMode.VelocityChange);
                 rb.linearVelocity = transform.forward * 10f;
             }
-            else if (state == "unwalkable" || state == "air") // Stops being stuck in the air
+            else if (state == AIGrid.GridStates.unwalkable || state == AIGrid.GridStates.air) // Stops being stuck in the air
             {
                 //Debug.Log("Push Down");
                 rb.AddForce(Vector3.down * 4f, ForceMode.VelocityChange);
