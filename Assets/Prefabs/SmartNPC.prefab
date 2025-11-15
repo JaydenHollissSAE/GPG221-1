@@ -905,12 +905,14 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   enableMyVisualisations: 1
+  bobHead: 0
   seenCells: []
   currentLookingAt: []
   viewDistance: {x: 5, y: 8}
   viewableLayers:
   - serializedVersion: 2
     m_Bits: 1024
+  seenItems: []
   seenItemPositions: []
 --- !u!1 &4425097234935602562
 GameObject:

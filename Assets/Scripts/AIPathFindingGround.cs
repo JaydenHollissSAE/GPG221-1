@@ -4,7 +4,7 @@ public class AIPathFindingGround : AIPathFindingBase
 {
 
     Rigidbody rb;
-    protected bool bobHead = true;
+    [SerializeField] protected bool bobHead = true;
 
     protected virtual void Start()
     {
@@ -84,7 +84,7 @@ public class AIPathFindingGround : AIPathFindingBase
         else
         {
             RaycastHit hit;
-            bool hitDetction = Physics.BoxCast(new Vector3(inputPos.x, inputPos.y, inputPos.z), AIGrid.instance.scaledCellSize, Vector3.zero, out hit); // Checks if anything exists in the target cell
+            bool hitDetction = Physics.BoxCast(new Vector3(inputPos.x, inputPos.y, inputPos.z), AIGrid.instance.scaledCellSize/2, new Vector3(inputPos.x, inputPos.y, inputPos.z), out hit); // Checks if anything exists in the target cell
             if (hitDetction)
             {
                 // Checks next to the cell on either the X or Z value depending on the next cell position
@@ -102,7 +102,7 @@ public class AIPathFindingGround : AIPathFindingBase
 
                     // Checks if something exists in the cell next to it
                     RaycastHit hit2;
-                    bool hitDetction2 = Physics.BoxCast(checkPos, AIGrid.instance.scaledCellSize, Vector3.zero, out hit2);
+                    bool hitDetction2 = Physics.BoxCast(checkPos, AIGrid.instance.scaledCellSize/2, checkPos, out hit2);
                     if (!hitDetction2) // If nothing hit, checks if the cell is able to be traversed, sets new target if able to be
                     {
                         AIGrid.GridStates state = AIGrid.instance.grid[(int)checkPos.x, (int)checkPos.y, (int)checkPos.z].state;
@@ -149,15 +149,24 @@ public class AIPathFindingGround : AIPathFindingBase
 
             VisualisationSetter.instance.SpawnVisualisation(jumpPos, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.jump, gameObject);
 
-
-            AIGrid.GridStates state = AIGrid.instance.grid[Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z)].state;
+            int[] tmpPositions = new int[3] { Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z) };
+            AIGrid.GridStates state = AIGrid.instance.grid[tmpPositions[0], tmpPositions[1], tmpPositions[2]].state;
             //Debug.Log(state);
-            if (state == AIGrid.GridStates.stairs)
+
+            AIGrid.GridStates state2 = AIGrid.GridStates.invalid;
+            
+            try
+            {
+                state2 = AIGrid.instance.grid[tmpPositions[0], tmpPositions[1] - 1, tmpPositions[2]].state;
+            }
+            catch { }
+
+            if (state == AIGrid.GridStates.stairs || state2 == AIGrid.GridStates.stairs)
             {
                 rb.AddForce(Vector3.up * 10f, ForceMode.VelocityChange);
                 rb.linearVelocity = transform.forward * 10f;
             }
-            else if (state == AIGrid.GridStates.unwalkable || state == AIGrid.GridStates.air) // Stops being stuck in the air
+            else if ((state == AIGrid.GridStates.unwalkable || state == AIGrid.GridStates.air)) // Stops being stuck in the air
             {
                 //Debug.Log("Push Down");
                 rb.AddForce(Vector3.down * 4f, ForceMode.VelocityChange);

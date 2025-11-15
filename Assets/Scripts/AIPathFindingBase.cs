@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,9 +19,9 @@ public class AIPathFindingBase : MonoBehaviour
 
     protected int characterY = 10000000;
 
-    protected List<Vector3> pathCellPositions = new List<Vector3>();
+    [SerializeField] protected List<Vector3> pathCellPositions = new List<Vector3>();
 
-    protected int pathResetCounter = 0;
+    protected int pathResetCounter = 10;
 
 
     protected static Vector3 worldZero = Vector3.zero;
@@ -42,6 +43,7 @@ public class AIPathFindingBase : MonoBehaviour
     {
         //Debug.Log(Vector3.Distance(transform.position, goal));
         //Debug.Log(settingGoal);
+        //Debug.Log("Run Base");
 
         CheckGoal();
 
@@ -96,7 +98,7 @@ public class AIPathFindingBase : MonoBehaviour
 
     protected virtual void SetPathTo(Vector3 myGoal = new Vector3()) 
     {
-        if (myGoal == new Vector3())
+        if (myGoal == Vector3.zero)
         {
             myGoal = goal;
         }
@@ -140,8 +142,8 @@ public class AIPathFindingBase : MonoBehaviour
             // Selects a random stair on the correct Y to path find to. Doesn't need to be exact as it is just for getting to a different layer, so randomness is the most effective way.
             while (validStairs)
             {
-                int x = Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.x);
-                int z = Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.z);
+                int x = UnityEngine.Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.x);
+                int z = UnityEngine.Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.z);
                 if ((AIGrid.instance.grid[x, localCharacterY, z].state == AIGrid.GridStates.stairs))
                 {
                     //Debug.Log("Path found");
@@ -161,7 +163,7 @@ public class AIPathFindingBase : MonoBehaviour
         return;
     }
 
-    protected IEnumerator AutoPathReset()
+    protected virtual IEnumerator AutoPathReset()
     {
         // Failsafe that resets pathTo if it hasn't been met in too long
         Vector3 localPathTo = pathTo; // Stores the current location for a failsafe
@@ -184,7 +186,7 @@ public class AIPathFindingBase : MonoBehaviour
 
     }
 
-    protected IEnumerator AutoGoalReset()
+    protected virtual IEnumerator AutoGoalReset()
     {
         // Failsafe that resets goal if it hasn't been met in too long
         Vector3 localGoal = goal; // Stores the current location for a failsafe
@@ -207,7 +209,7 @@ public class AIPathFindingBase : MonoBehaviour
 
     }
 
-    protected IEnumerator CalculatePath()
+    protected virtual IEnumerator CalculatePath()
     {
         // Calculated as a Coroutine to prevent lag spikes via splitting it across ticks
 
@@ -306,9 +308,9 @@ public class AIPathFindingBase : MonoBehaviour
                                     }
                                     else
                                     {
-                                        checkingCell.gCost = 100000f;
-                                        checkingCell.hCost = 100000f;
-                                        checkingCell.fCost = 100000f;
+                                        checkingCell.gCost = float.MaxValue;
+                                        checkingCell.hCost = float.MaxValue;
+                                        checkingCell.fCost = float.MaxValue;
                                         if (!closedCells.Contains(checkingCell)) closedCells.Add(checkingCell);
                                     }
                                 }
@@ -395,15 +397,17 @@ public class AIPathFindingBase : MonoBehaviour
 
     protected virtual void SetGoal(Vector3 newGoal = new Vector3())
     {
-        if (newGoal != new Vector3())
+        //Debug.Log(Vector3.Distance(newGoal, Vector3.zero));
+        if (newGoal == Vector3.zero)
         {
+            //Debug.Log("Passed 1");
             // Simple goal setting based on walkable locations
             if (AIGrid.instance.walkableGrid.Count > 0)
             {
                 Vector3 tmpGoal = goal;
                 clearGoalVisualisation.Invoke();
 
-                goal = AIGrid.instance.walkableGrid[Random.Range(0, AIGrid.instance.walkableGrid.Count)].position;
+                goal = AIGrid.instance.walkableGrid[UnityEngine.Random.Range(0, AIGrid.instance.walkableGrid.Count)].position;
 
             }
 
@@ -465,3 +469,4 @@ public class AIPathFindingBase : MonoBehaviour
 
 
 }
+

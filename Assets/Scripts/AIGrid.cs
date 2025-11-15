@@ -23,9 +23,11 @@ public class AIGrid : MonoBehaviour
     public List<AIGridCell> walkableGrid = new List<AIGridCell>();
     public List<AIGridCell> stairsGrid = new List<AIGridCell>();
     public List<Vector3> unwalkableGrid = new List<Vector3>();
+    public List<Vector3> airGrid = new List<Vector3>();
 
     public enum GridStates
     {
+        invalid,
         walkable,
         stairs,
         unwalkable,
@@ -227,11 +229,14 @@ public class AIGrid : MonoBehaviour
                         foreach (LayerMask layer in layers)
                         {
 
+                            //Debug.Log($"{((int)layer.value)} {LayerMask.LayerToName((int)((int)layer.value))}");
+
                             grid[x, y, z] = new AIGridCell();
                             if (!Physics.CheckBox(new Vector3(x, y, z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as air if nothing is present in it
                             {
                                 grid[x, y, z].state = AIGrid.GridStates.air;
                                 grid[x, y, z].position = new Vector3(x, y, z);
+                                airGrid.Add(grid[x, y, z].position);
 
                                 //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, AIGrid.States.air); // Disabled for build optimisation
 
@@ -246,7 +251,7 @@ public class AIGrid : MonoBehaviour
                                 //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, AIGrid.States.walkable); // Disabled for build optimisation
 
                                 RaycastHit hit;
-                                bool hitDetction = Physics.BoxCast(new Vector3(x, y, z), scaledCellSize, Vector3.zero, out hit);
+                                bool hitDetction = Physics.BoxCast(new Vector3(x, y, z), scaledCellSize/2, new Vector3(x, y, z), out hit);
                                 if (hitDetction)
                                 {
                                     if (extraCostsNames.Contains(hit.transform.tag)) grid[x, y, z].eCost = extraCosts[extraCostsNames.IndexOf(hit.transform.tag)].cost;
@@ -261,7 +266,7 @@ public class AIGrid : MonoBehaviour
 
                                 stairsGrid.Add(grid[x, y, z]);
                                 RaycastHit hit;
-                                bool hitDetction = Physics.BoxCast(new Vector3(x, y + scaledCellSize.y, z), scaledCellSize, Vector3.zero, out hit);
+                                bool hitDetction = Physics.BoxCast(new Vector3(x, y + scaledCellSize.y, z), scaledCellSize/2, new Vector3(x, y + scaledCellSize.y, z), out hit);
                                 if (hitDetction)
                                 {
                                     if (extraCostsNames.Contains(hit.transform.tag)) grid[x, y, z].eCost = extraCosts[extraCostsNames.IndexOf(hit.transform.tag)].cost;
