@@ -7,7 +7,7 @@ using UnityEngine.Events;
 using static UnityEditor.Experimental.GraphView.GraphView;
 using static UnityEditor.Progress;
 
-public class AIPathFindingSmartGround : AIPathFindingGround
+public class AIPathFindingSmartGround1 : AIPathFindingGround
 {
     //[SerializeField] protected Vector3[,,] seenCells; // Allows me to map out a world with coordinates easily
     [SerializeField] protected List<Vector3> seenCells = new List<Vector3>(); // Allows me to map out a world with coordinates easily
@@ -71,8 +71,6 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                 base.FixedUpdate();
                 break;
             case AIGoals.fetch:
-                //CheckForItems();
-                //ItemNeeded(itemInFront)
                 ItemBehaviour();
                 CheckForItems();
                 //FollowPath();
@@ -242,9 +240,9 @@ public class AIPathFindingSmartGround : AIPathFindingGround
             CalculatedPathData pathData3 = null;
 
             List<Vector3> invalidPoints = new List<Vector3>
-        {
-            itemInFront.position
-        };
+            {
+                itemInFront.position
+            };
 
             for (int i = 0; i < 5; i++)
             {
@@ -425,16 +423,7 @@ protected virtual IEnumerator View()
                     //Debug.LogError(ex);
                 }
 
-                /*
-                Vector3 newPos = new Vector3(Mathf.FloorToInt(transform.forward.x), Mathf.FloorToInt(transform.forward.y), Mathf.FloorToInt(transform.forward.z));
 
-                if (!NewUnity.ContainsV3(checkPositions, newPos))
-                {
-                    List<Vector3> tmpList = (new List<Vector3> { newPos });
-                    tmpList.AddRange(checkPositions);
-                    checkPositions = tmpList;
-                }
-                */
 
                 bool itemFound = false;
 
@@ -472,6 +461,8 @@ protected virtual IEnumerator View()
                                         }
                                         if (itemData != null) itemFound = true;
                                     }
+
+
 
                                 }
                             }
@@ -543,6 +534,7 @@ protected virtual IEnumerator View()
                 pathCellPositionsBuffer.RemoveAt(0);
             }
         }
+
         try
         {
             clearCalculatedPathVisualisation.Invoke();
@@ -565,22 +557,19 @@ protected virtual IEnumerator View()
         
         if (!NewUnity.ContainsLM(viewableLayers, collision.gameObject.layer)) // Prevents character from climibing doors and other items
         {
-            Debug.Log(collision.gameObject.layer);
+            //Debug.Log(collision.gameObject.layer);
             base.ColliderJump(collision); 
         }
     }
 
-    /*protected override IEnumerator CalculatePath() // Idk why but this is refusing to return a properly working value, breaking everything
+    protected override IEnumerator CalculatePath()
     {
         if (!awaitCalculation)
         {
-            if (pathTo == Vector3.zero) SetPathTo();
             awaitCalculation = true;
             pathCalculated = true;
             CalculatedPathData data = new CalculatedPathData();
             Debug.Log("Start Calculation");
-
-
 
             for (int i = 0; i < 15; i++)
             {
@@ -618,7 +607,8 @@ protected virtual IEnumerator View()
 
 
 
-     }*/
+    }
+
 
 }
 

@@ -2035,62 +2035,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 348568764}
   m_CullTransparentMesh: 1
---- !u!1 &372841498
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 372841500}
-  - component: {fileID: 372841499}
-  m_Layer: 0
-  m_Name: Visualisations
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &372841499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 372841498}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5859eca720a99f4a84a6eb68ea16b62, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prefab: {fileID: 3295625995548681486, guid: 5644b17ca1129b6468f95bb1111194ae, type: 3}
-  baseMaterial: {fileID: 2100000, guid: 6c2b946dd41e761438e9984a19fa1422, type: 2}
-  unwalkableVisualisations: []
-  stairsVisualisations: []
-  walkableVisualisations: []
-  airVisualisations: []
-  calculatedPathVisualisations: []
-  jumpVisualisations: []
-  goalVisualisations: []
-  pathToVisualisations: []
-  updateVisuals: 1
-  spawningQueue: []
---- !u!4 &372841500
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 372841498}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &383144973
 GameObject:
   m_ObjectHideFlags: 0
@@ -2536,6 +2480,63 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 454388530}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &462822201
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2203195898168939801, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_Name
+      value: Visualisations
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5213677172981992880, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 3f4c03fe05acb8f438d0f93b7861e538, type: 3}
 --- !u!1 &473796608
 GameObject:
   m_ObjectHideFlags: 0
@@ -11548,6 +11549,8 @@ MonoBehaviour:
   - name: Ice
     cost: -2
   extraCostsNames: []
+  unwalkableGrid: []
+  airGrid: []
   showVisualisations: 1
   showVisualisationUnwalkable: 0
   showVisualisationStairs: 0
@@ -13753,6 +13756,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   goal: {x: 0, y: 0, z: 0}
   pathTo: {x: 0, y: 0, z: 0}
+  pathCellPositions: []
   clearPathToVisualisation:
     m_PersistentCalls:
       m_Calls: []
@@ -13766,6 +13770,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   enableMyVisualisations: 1
+  bobHead: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -13777,7 +13782,7 @@ SceneRoots:
   - {fileID: 1447544516}
   - {fileID: 1869693210}
   - {fileID: 953987607}
-  - {fileID: 372841500}
   - {fileID: 484276976}
   - {fileID: 2052863193}
   - {fileID: 1563805629}
+  - {fileID: 462822201}

@@ -762,7 +762,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3786976401328635602}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.98765445, z: -0, w: -0.15664838}
+  m_LocalRotation: {x: -0, y: -0.9876542, z: 0, w: -0.15664975}
   m_LocalPosition: {x: 18.91, y: 1.5, z: 36.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -892,6 +892,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   goal: {x: 0, y: 0, z: 0}
   pathTo: {x: 0, y: 0, z: 0}
+  pathCellPositions: []
   clearPathToVisualisation:
     m_PersistentCalls:
       m_Calls: []
@@ -909,11 +910,18 @@ MonoBehaviour:
   seenCells: []
   currentLookingAt: []
   viewDistance: {x: 5, y: 8}
+  itemInFront: {fileID: 0}
   viewableLayers:
   - serializedVersion: 2
     m_Bits: 1024
   seenItems: []
   seenItemPositions: []
+  currentTask: 0
+  fetchingItem: 0
+  inventory: 
+  neededItems: 
+  lockedPositions: []
+  pathCellPositionsBuffer: []
 --- !u!1 &4425097234935602562
 GameObject:
   m_ObjectHideFlags: 0

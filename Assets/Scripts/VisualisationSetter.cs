@@ -19,6 +19,10 @@ public class VisualisationSetter : MonoBehaviour
     public bool updateVisuals = true;
     private bool spawningQueueActive = false;
     public List<VisualisationSpawnData> spawningQueue = new List<VisualisationSpawnData>();
+    public Stack<GameObject> visualisationPool = new Stack<GameObject>();
+    public List<Vector3> activeVisualisationsPositions = new List<Vector3>();
+
+    public VisualisationPoolSpawner visualisationPoolSpawner;
 
 
     public enum VisualisationStates
@@ -42,6 +46,11 @@ public class VisualisationSetter : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
         else Destroy(gameObject);
+    }
+
+    private void Start()
+    {
+        visualisationPoolSpawner = GetComponent<VisualisationPoolSpawner>();
     }
 
 
@@ -183,67 +192,81 @@ public class VisualisationSetter : MonoBehaviour
 
         while (spawningQueue.Count > 0)
         {
-            GameObject spawned = Instantiate(prefab);
-            spawned.transform.parent = transform;
-            spawned.transform.position = spawningQueue[0].position;
-            spawned.transform.localScale = spawningQueue[0].size;
-            spawned.gameObject.name = spawningQueue[0].state + " Visualisation Cube";
-            VisualisationControl control = spawned.GetComponent<VisualisationControl>();
-            control.agent = spawningQueue[0].agent;
-            control.state = spawningQueue[0].state;
-            UnityEngine.Color colour = UnityEngine.Color.white;
-
-
-            switch (spawningQueue[0].state)
+            if (visualisationPool.Count == 0)
             {
-                case VisualisationSetter.VisualisationStates.walkable:
-                    colour = UnityEngine.Color.green;
-                    walkableVisualisations.Add(spawned);
-                    break;
-                case VisualisationSetter.VisualisationStates.stairs:
-                    colour = UnityEngine.Color.yellow;
-                    stairsVisualisations.Add(spawned);
-                    break;
-                case VisualisationSetter.VisualisationStates.unwalkable:
-                    colour = UnityEngine.Color.red;
-                    unwalkableVisualisations.Add(spawned);
-                    break;
-                case VisualisationSetter.VisualisationStates.air:
-                    colour = UnityEngine.Color.magenta;
-                    airVisualisations.Add(spawned);
-                    break;
-                case VisualisationSetter.VisualisationStates.calculatedPath:
-                    colour = new UnityEngine.Color(1, 0.5f, 0);
-                    calculatedPathVisualisations.Add(spawned);
-                    break;
-                case VisualisationSetter.VisualisationStates.goal:
-                    colour = UnityEngine.Color.cyan;
-                    goalVisualisations.Add(spawned);
-                    break;
-                case VisualisationSetter.VisualisationStates.pathTo:
-                    colour = UnityEngine.Color.black;
-                    pathToVisualisations.Add(spawned);
-                    break;
-                case VisualisationSetter.VisualisationStates.jump:
-                    colour = new UnityEngine.Color(0.5f, 0.5f, 0.5f);
-                    jumpVisualisations.Add(spawned);
-                    break;
-                default: //For showing errors
-                    break;
+                visualisationPoolSpawner.DoSpawn(1);
+                yield return new WaitForSeconds(5f);
             }
-            spawned.GetComponent<Renderer>().material = NewMaterial(colour);
-            spawningQueue.RemoveAt(0);
-            spawnCount+=1;
-            if (spawnCount >= 5)
+            else
             {
-                spawnCount = 0;
+                if (!activeVisualisationsPositions.Contains(spawningQueue[0].position))
+                {
+                    activeVisualisationsPositions.Add(spawningQueue[0].position);
+                    GameObject spawned = visualisationPool.Pop();
+                    spawned.transform.parent = transform;
+                    spawned.transform.position = spawningQueue[0].position;
+                    spawned.transform.localScale = spawningQueue[0].size;
+                    spawned.gameObject.name = spawningQueue[0].state + " Visualisation Cube";
+                    VisualisationControl control = spawned.GetComponent<VisualisationControl>();
+                    control.agent = spawningQueue[0].agent;
+                    control.state = spawningQueue[0].state;
+                    UnityEngine.Color colour = UnityEngine.Color.white;
+
+
+                    switch (spawningQueue[0].state)
+                    {
+                        case VisualisationSetter.VisualisationStates.walkable:
+                            colour = UnityEngine.Color.green;
+                            walkableVisualisations.Add(spawned);
+                            break;
+                        case VisualisationSetter.VisualisationStates.stairs:
+                            colour = UnityEngine.Color.yellow;
+                            stairsVisualisations.Add(spawned);
+                            break;
+                        case VisualisationSetter.VisualisationStates.unwalkable:
+                            colour = UnityEngine.Color.red;
+                            unwalkableVisualisations.Add(spawned);
+                            break;
+                        case VisualisationSetter.VisualisationStates.air:
+                            colour = UnityEngine.Color.magenta;
+                            airVisualisations.Add(spawned);
+                            break;
+                        case VisualisationSetter.VisualisationStates.calculatedPath:
+                            colour = new UnityEngine.Color(1, 0.5f, 0);
+                            calculatedPathVisualisations.Add(spawned);
+                            break;
+                        case VisualisationSetter.VisualisationStates.goal:
+                            colour = UnityEngine.Color.cyan;
+                            goalVisualisations.Add(spawned);
+                            break;
+                        case VisualisationSetter.VisualisationStates.pathTo:
+                            colour = UnityEngine.Color.black;
+                            pathToVisualisations.Add(spawned);
+                            break;
+                        case VisualisationSetter.VisualisationStates.jump:
+                            colour = new UnityEngine.Color(0.5f, 0.5f, 0.5f);
+                            jumpVisualisations.Add(spawned);
+                            break;
+                        default: //For showing errors
+                            break;
+                    }
+                    spawned.GetComponent<Renderer>().material = NewMaterial(colour);
+                }
+
+                spawningQueue.RemoveAt(0);
+                spawnCount += 1;
+                if (spawnCount >= 5)
+                {
+                    spawnCount = 0;
+                    updateVisuals = true;
+                    yield return new WaitForSeconds(2f);
+                }
+                //yield return null;
                 updateVisuals = true;
-                yield return new WaitForSeconds(2f);
+                spawningQueueActive = false;
             }
-            //yield return null;
+            yield return null;
         }
-        updateVisuals = true;
-        spawningQueueActive = false;
         yield return null;
 
     }

@@ -16,10 +16,10 @@ public class VisualisationControl : MonoBehaviour
     }
 
 
-    private void OnDestroy()
-    {
-        DestroyMe();
-    }
+    //private void OnDestroy()
+    //{
+    //    DestroyMe();
+    //}
 
     public void DestroyMe()
     {
@@ -69,7 +69,11 @@ public class VisualisationControl : MonoBehaviour
             }
         }
 
-        Destroy(this.gameObject);
+        ChangeMyRenderer(false);
+        agent = null;
+        //Destroy(this.gameObject);
+        VisualisationSetter.instance.visualisationPool.Push(this.gameObject);
+        VisualisationSetter.instance.activeVisualisationsPositions.Remove(transform.position);
     }
 
 
@@ -87,8 +91,7 @@ public class VisualisationControl : MonoBehaviour
     {
         if (!setSubscription) 
         {
-            checkedTimes++;
-            if (agent != null && state != VisualisationSetter.VisualisationStates.nullVal || checkedTimes > 100)
+            if (agent != null && state != VisualisationSetter.VisualisationStates.nullVal && !VisualisationSetter.instance.visualisationPool.Contains(gameObject))
             {
                 setSubscription = true;
                 AIPathFindingBase pathFinding = agent.GetComponent<AIPathFindingBase>();
