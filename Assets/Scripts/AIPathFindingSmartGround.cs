@@ -570,7 +570,7 @@ protected virtual IEnumerator View()
         }
     }
 
-    /*protected override IEnumerator CalculatePath() // Idk why but this is refusing to return a properly working value, breaking everything
+    protected override IEnumerator CalculatePath() // Idk why but this is refusing to return a properly working value, breaking everything
     {
         if (!awaitCalculation)
         {
@@ -578,7 +578,7 @@ protected virtual IEnumerator View()
             awaitCalculation = true;
             pathCalculated = true;
             CalculatedPathData data = new CalculatedPathData();
-            Debug.Log("Start Calculation");
+            //Debug.Log("Start Calculation");
 
 
 
@@ -595,9 +595,9 @@ protected virtual IEnumerator View()
                     pathCellPositionsBuffer.Clear();
                     pathCellPositions.Clear();
                     pathCellPositions = data.pathCellPositions;
-                    Debug.Log($"{pathCellPositions.Count} {data.pathCellPositions.Count} {characterY}");
+                    //Debug.Log($"{pathCellPositions.Count} {data.pathCellPositions.Count} {characterY}");
                     pathCalculated = true;
-                    Debug.Log("Calculation Success");
+                    //Debug.Log("Calculation Success");
                     break;
                 }
                 yield return null;
@@ -605,7 +605,7 @@ protected virtual IEnumerator View()
             if (data == null || data.failure)
             {
                 pathCalculated = false;
-                Debug.Log("Calculation Failure");
+                //Debug.Log("Calculation Failure");
             }
 
             yield return null;
@@ -618,7 +618,7 @@ protected virtual IEnumerator View()
 
 
 
-     }*/
+    }
 
 }
 

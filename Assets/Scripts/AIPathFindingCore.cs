@@ -46,15 +46,16 @@ public class AIPathFindingCore : MonoBehaviour
             openCells.Add(currentCell);
 
         }
-        catch // Indicates a failure with fetching the grid, so halts to go ahead
+        catch (Exception ex)// Indicates a failure with fetching the grid, so halts to go ahead
         {
+            Debug.Log(ex);
             calculatedPathData.failure = true;
             return calculatedPathData;
         }
         bool localPathCalculated = false;
         while (!localPathCalculated)
         {
-            if (!localPathCalculated) break; // Failsafe for changing target
+            Debug.Log("Start While");
             AIGridCell shortest = null;
             checkingX = Mathf.FloorToInt(currentCell.position.x);
             checkingZ = Mathf.FloorToInt(currentCell.position.z);
@@ -80,7 +81,7 @@ public class AIPathFindingCore : MonoBehaviour
                             if (!openCells.Contains(checkingCell) && checkingCell != currentCell)
                             {
 
-                                if (!closedCells.Contains(checkingCell) && ((checkingCell.state == AIGrid.GridStates.walkable || checkingCell.state == AIGrid.GridStates.stairs) && (AIGrid.instance.grid[checkingX + i, checkingY - (int)AIGrid.instance.scaledCellSize.y, checkingZ + j] == null || AIGrid.instance.grid[checkingX + i, checkingY - 1, checkingZ + j].state != AIGrid.GridStates.air)) && !(NewUnity.ContainsV3(blockedPositions,checkingCell.position)))
+                                if (!closedCells.Contains(checkingCell) && ((checkingCell.state == AIGrid.GridStates.walkable || checkingCell.state == AIGrid.GridStates.stairs) && (AIGrid.instance.grid[checkingX + i, checkingY - (int)AIGrid.instance.scaledCellSize.y, checkingZ + j] == null || AIGrid.instance.grid[checkingX + i, checkingY - 1, checkingZ + j].state != AIGrid.GridStates.air)) && !(NewUnity.ContainsV3(blockedPositions, checkingCell.position)))
                                 {
                                     checkingCell.hCost = Vector3.Distance(checkingCell.position, pathTo);
                                     if (k == 0) checkingCell.gCost = currentCell.gCost + Vector3.Distance(currentCell.position, checkingCell.position);
@@ -107,7 +108,7 @@ public class AIPathFindingCore : MonoBehaviour
                                 }
                             }
                         }
-                        catch { } // If error occurs, continue on like nothing happened. No need for extra check failsafe as if one isn't used, others are.
+                        catch (Exception ex) { Debug.Log(ex); } // If error occurs, continue on like nothing happened. No need for extra check failsafe as if one isn't used, others are.
 
                     }
 
@@ -117,6 +118,7 @@ public class AIPathFindingCore : MonoBehaviour
             try
             {
                 // Reorders the cells in the lists for calculations
+                Debug.Log(shortest);
                 if (shortest != null)
                 {
                     currentCell = shortest;
@@ -124,12 +126,14 @@ public class AIPathFindingCore : MonoBehaviour
                     calculatedPathData.pathCells.Add(currentCell);
                     calculatedPathData.cost = shortest.fCost;
                     calculatedPathData.pathCellPositions.Add(currentCell.position);
+                    Debug.Log("Shortest Run");
                 }
                 else if (openCells.Count > 1)
                 {
                     closedCells.Add(openCells[openCells.Count - 1]);
                     openCells.RemoveAt(openCells.Count - 1);
                     currentCell = openCells[openCells.Count - 1];
+                    Debug.Log("Open Run");
                 }
 
             }
