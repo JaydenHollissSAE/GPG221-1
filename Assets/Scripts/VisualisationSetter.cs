@@ -26,7 +26,9 @@ public class VisualisationSetter : MonoBehaviour
 
     public VisualisationPoolSpawner visualisationPoolSpawner;
 
-
+    /// <summary>
+    /// Different types of visualisations
+    /// </summary>
     public enum VisualisationStates
     {
         nullVal,

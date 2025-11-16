@@ -1,10 +1,11 @@
 using System.Collections.Generic;
-using UnityEditor.Timeline;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class ItemData : MonoBehaviour
 {
+    /// <summary>
+    /// Different types of items
+    /// </summary>
     public enum ItemTypes
     {
         nothing,
@@ -16,7 +17,7 @@ public class ItemData : MonoBehaviour
 
     public List<Vector3> position = new List<Vector3>(); // List to account for items larger than 1 cell
 
-    void Start()
+    void Start() // Sets the position in the position variable, accounting for scaling and rotation
     {
         Vector3 scaledScale = new Vector3(Mathf.CeilToInt(transform.lossyScale.x), Mathf.CeilToInt(transform.lossyScale.y), Mathf.CeilToInt(transform.lossyScale.z));
 
