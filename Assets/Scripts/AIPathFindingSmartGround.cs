@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using static UnityEditor.Experimental.GraphView.GraphView;
@@ -30,6 +31,8 @@ public class AIPathFindingSmartGround : AIPathFindingGround
 
     [SerializeField] protected List<Vector3> lockedPositions = new List<Vector3>();
     [SerializeField] protected List<ListBuffer> pathCellPositionsBuffer = new List<ListBuffer>();
+
+    bool startWander = false;
 
     public enum AIGoals 
     {
@@ -75,8 +78,8 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                 //ItemNeeded(itemInFront)
                 ItemBehaviour();
                 CheckForItems();
-                //FollowPath();
-                base.FixedUpdate();
+                FollowPath();
+                //base.FixedUpdate();
                 break;
             case AIGoals.wander:
                 CheckForItems();
@@ -116,7 +119,9 @@ public class AIPathFindingSmartGround : AIPathFindingGround
         }
     }
 
-    
+
+
+
 
 
     /// <summary>
@@ -125,44 +130,55 @@ public class AIPathFindingSmartGround : AIPathFindingGround
     protected virtual void Wander()
     {
         //if (Array.IndexOf(seenCells, pathTo) != -1)
-        if (NewUnity.ContainsV3(seenCells, pathTo))
+        if (startWander || NewUnity.ContainsV3(seenCells, pathTo))
         {
-            int xLength = AIGrid.instance.grid.GetLength(0);
-            int yLength = AIGrid.instance.grid.GetLength(2);
+            startWander = false;
+            int[] xBounds = new int[2] { AIGrid.instance.grid.GetLowerBound(0), AIGrid.instance.grid.GetUpperBound(0) };
+            int[] zBounds = new int[2] { AIGrid.instance.grid.GetLowerBound(2), AIGrid.instance.grid.GetUpperBound(2) };
+            int[] yBounds = new int[2] { AIGrid.instance.grid.GetLowerBound(1), AIGrid.instance.grid.GetUpperBound(1) };
             List<Vector3> checkedPositions = new List<Vector3>();
 
             CalculatedPathData pathDataCore = null;
 
+            int localcharacterY = characterY;
+            Vector3 localPosition = transform.position;
+
             // Goal is to fill out the viewed area so random works the most optimally
 
-            while (checkedPositions.Count < xLength * yLength)
+            while (checkedPositions.Count < (xBounds[0] + xBounds[1]) * (zBounds[0] + zBounds[1]))
             {
-                AIGridCell tmpCell = AIGrid.instance.grid[UnityEngine.Random.Range(0, xLength), (int)pathTo.y, UnityEngine.Random.Range(0, yLength)];
-                if (!NewUnity.ContainsV3(checkedPositions,tmpCell.position))
+                if (localcharacterY > yBounds[0] && localcharacterY < yBounds[1])
                 {
-                    checkedPositions.Add(tmpCell.position);
-                    //if (Array.IndexOf(seenCells, tmpCell.position) != -1 && (tmpCell.state == AIGrid.GridStates.walkable || tmpCell.state == AIGrid.GridStates.stairs))
-                    if (NewUnity.ContainsV3(seenCells,tmpCell.position) && (tmpCell.state == AIGrid.GridStates.walkable || tmpCell.state == AIGrid.GridStates.stairs))
+                    AIGridCell tmpCell = AIGrid.instance.grid[UnityEngine.Random.Range(xBounds[0], xBounds[1]), localcharacterY, UnityEngine.Random.Range(zBounds[0], zBounds[1])];
+                    if (!NewUnity.ContainsV3(checkedPositions, tmpCell.position))
                     {
+                        checkedPositions.Add(tmpCell.position);
+                        //if (Array.IndexOf(seenCells, tmpCell.position) != -1 && (tmpCell.state == AIGrid.GridStates.walkable || tmpCell.state == AIGrid.GridStates.stairs))
+                        if (!NewUnity.ContainsV3(seenCells, tmpCell.position) && (tmpCell.state == AIGrid.GridStates.walkable || tmpCell.state == AIGrid.GridStates.stairs))
+                        {
 
-                        CalculatedPathData pathData = null;
-                        for (int i = 0; i < 5; i++)
-                        {
-                            try
+                            CalculatedPathData pathData = null;
+                            for (int i = 0; i < 5; i++)
                             {
-                                pathData = AIPathFindingCore.CalculatePathCore(tmpCell.position, transform.position, 0, lockedPositions);
+                                try
+                                {
+                                    pathData = AIPathFindingCore.CalculatePathCore(tmpCell.position, localPosition, 0, lockedPositions);
+                                }
+                                catch { }
+                                if (pathData != null && !pathData.failure) break;
                             }
-                            catch { }
-                            if (pathData != null && !pathData.failure) break;
-                        }
-                        if (pathData != null && !pathData.failure && pathData.pathFound)
-                        {
-                            pathDataCore = pathData;
-                            pathDataCore.goal = tmpCell.position;
-                            break;
+                            if (pathData != null && !pathData.failure && pathData.pathFound)
+                            {
+                                pathDataCore = pathData;
+                                pathDataCore.goal = tmpCell.position;
+                                break;
+                            }
                         }
                     }
                 }
+                else break;
+
+
             }
 
             if (pathDataCore != null)
@@ -174,14 +190,11 @@ public class AIPathFindingSmartGround : AIPathFindingGround
             else
             {
                 // Idk, maybe explode
+                startWander = true;
             }
 
-
-
-
-
-                
         }
+        return;
     }
 
 
@@ -209,7 +222,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                     {
                         try
                         {
-                            pathData = AIPathFindingCore.CalculatePathCore(item.position, transform.position, 0);
+                            pathData = AIPathFindingCore.CalculatePathCore(item.position[0], transform.position, 0);
                         }
                         catch { }
                         if (pathData != null && !pathData.failure) break;
@@ -239,12 +252,21 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                     if (pathData2 != null && !pathData2.failure) break;
                 }
             }
+            else
+            {
+                currentTask = AIGoals.wander;
+                startWander = true;
+                return;
+            }
             CalculatedPathData pathData3 = null;
 
-            List<Vector3> invalidPoints = new List<Vector3>
-        {
-            itemInFront.position
-        };
+            List<Vector3> invalidPoints = new List<Vector3>();
+
+            foreach (Vector3 pos in itemInFront.position)
+            {
+                invalidPoints.Add(pos);
+            }
+            
 
             for (int i = 0; i < 5; i++)
             {
@@ -262,6 +284,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
             if (pathData3 == null || !pathData3.pathFound)
             {
                 currentTask = AIGoals.wander;
+                startWander = true;
                 return;
             }
             else if (pathData2 != null && pathData2.cost + shortestKeyCost < pathData3.cost)
@@ -280,6 +303,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                 listBuffer.Add(listBuffer1);
             }
 
+            List<ListBuffer> listBuffer4 = new List<ListBuffer>();
 
             foreach (ListBuffer buffer in listBuffer)
             {
@@ -290,12 +314,12 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                     tmpList2.Add(cell.position);
                 }
                 listBuffer3.vector3B = tmpList2;
-                listBuffer.Add(listBuffer3);
+                listBuffer4.Add(listBuffer3);
 
             }
             currentTask = AIGoals.fetch;
             pathCellPositionsBuffer.Clear();
-            pathCellPositionsBuffer = listBuffer;
+            pathCellPositionsBuffer = listBuffer4;
             pathCellPositions.Clear();
         }
 
@@ -319,7 +343,10 @@ public class AIPathFindingSmartGround : AIPathFindingGround
             {
                 if (inventory.Contains(ItemData.ItemTypes.key))
                 {
-                    lockedPositions.Remove(itemInFront.position);
+                    foreach (Vector3 pos in itemInFront.position)
+                    {
+                        lockedPositions.Remove(pos);
+                    }
                     InteractItem(false, AIGoals.fetch, ItemData.ItemTypes.key);
                 }
                 else
@@ -343,7 +370,10 @@ public class AIPathFindingSmartGround : AIPathFindingGround
     protected virtual void InteractItem(bool collect, AIGoals task = AIGoals.goToGoal, ItemData.ItemTypes useItem = ItemData.ItemTypes.nothing)
     {
         inventory.Add(itemInFront.type);
-        Destroy(itemInFront.gameObject);
+
+        ActiveToggle.instance.ToggleActive(itemInFront.gameObject, false);
+        //if (activeToggle != null) activeToggle.ToggleActive(false);
+        //else Destroy(itemInFront.gameObject);
         //itemInFront = null;
         currentTask = task;
         if (useItem != ItemData.ItemTypes.nothing)
@@ -362,11 +392,11 @@ public class AIPathFindingSmartGround : AIPathFindingGround
     }
 
 
-/// <summary>
-/// Constantly checks a triangle in front and records what is seen
-/// </summary>
-/// <returns></returns>
-protected virtual IEnumerator View()
+    /// <summary>
+    /// Constantly checks a triangle in front and records what is seen
+    /// </summary>
+    /// <returns></returns>
+    protected virtual IEnumerator View()
     {
         while (true)
         {
@@ -379,18 +409,11 @@ protected virtual IEnumerator View()
                 try
                 {
 
-                    int facingAdjustmentX = 1;
-                    if (transform.forward.x - transform.position.x < 0) facingAdjustmentX = -1;
-                    int facingAdjustmentZ = 1;
-                    //if (transform.forward.z - transform.position.z < 0) facingAdjustmentZ = -1;
-
                     float degree = transform.rotation.y * (Mathf.PI / 180f);
-                    //Debug.Log(transform.rotation.y);
 
 
-                    float triAngle = Mathf.Atan(scaledViewDistance.x / scaledViewDistance.y);
+                    float triAngle = Mathf.Atan(scaledViewDistance.x / scaledViewDistance.y); // "I should rename this angle varaible, I just used it in the wrong spot. Oh I know, it is for triangles so I'll put a tri prefix before it.........wait"
 
-                    //Debug.Log(scaledViewDistance);
 
                     for (int adjacent = 1; adjacent < scaledViewDistance.y; adjacent += 1)
                     {
@@ -398,15 +421,7 @@ protected virtual IEnumerator View()
                         int opposite = Mathf.CeilToInt(Mathf.Tan(triAngle) * adjacent);
                         for (int oppositeX = -opposite; oppositeX <= opposite; oppositeX += 1)
                         {
-                            //Debug.Log(oppositeX);
                             Vector3 pos = new Vector3(Mathf.FloorToInt(transform.position.x + adjacent * Mathf.Sin(transform.rotation.y)), characterY, Mathf.FloorToInt(transform.position.z + oppositeX * Mathf.Cos(transform.rotation.y)));
-                            //Vector3 pos = new Vector3(Mathf.FloorToInt(transform.position.x + (((oppositeX) * Mathf.Cos(-transform.rotation.y)) + ((adjacent) * Mathf.Sin(-transform.rotation.y)))), characterY, Mathf.FloorToInt(transform.position.z + ((adjacent) * Mathf.Cos(-transform.rotation.y)) - ((oppositeX) * Mathf.Sin(-transform.rotation.y))));
-                            //Vector3 pos = new Vector3(Mathf.FloorToInt((transform.position.x) + (facingAdjustmentX*((oppositeX) * Mathf.Cos(transform.rotation.y)) + ((adjacent) * Mathf.Sin(transform.rotation.y)))), transform.position.y, Mathf.FloorToInt((transform.position.z) + (facingAdjustmentZ*((adjacent) * Mathf.Cos(transform.rotation.y)) - ((oppositeX) * Mathf.Sin(transform.rotation.y)))));
-                            //Vector3 pos = Quaternion.AngleAxis(transform.rotation.y, transform.position) * (new Vector3(adjacent, 0, oppositeX) + transform.position); 
-                            //Vector3 pos = (RotatePointAroundPivot((new Vector3(Mathf.FloorToInt(adjacent + transform.position.x), characterY, Mathf.FloorToInt(oppositeX + transform.position.z))), transform.position, new Vector3(0, transform.rotation.y,0)));
-                            //Debug.Log(pos);
-                            //Debug.Log(seenCells.Contains(pos));
-                            //if (!checkPositions.Contains(pos) && (Array.IndexOf(seenCells, pos) == -1 || seenItemPositions.Contains(pos))) checkPositions.Add(pos);
                             if ((!NewUnity.ContainsV3(checkPositions, pos) && (!NewUnity.ContainsV3(seenCells, pos) || NewUnity.ContainsV3(seenItemPositions, pos))))
                             {
                                 checkPositions.Add(pos);
@@ -425,16 +440,7 @@ protected virtual IEnumerator View()
                     //Debug.LogError(ex);
                 }
 
-                /*
-                Vector3 newPos = new Vector3(Mathf.FloorToInt(transform.forward.x), Mathf.FloorToInt(transform.forward.y), Mathf.FloorToInt(transform.forward.z));
 
-                if (!NewUnity.ContainsV3(checkPositions, newPos))
-                {
-                    List<Vector3> tmpList = (new List<Vector3> { newPos });
-                    tmpList.AddRange(checkPositions);
-                    checkPositions = tmpList;
-                }
-                */
 
                 bool itemFound = false;
 
@@ -449,20 +455,24 @@ protected virtual IEnumerator View()
                             RaycastHit hit2;
                             bool hitDetction2 = Physics.BoxCast(checkPositions[i], AIGrid.instance.scaledCellSize/2, checkPositions[i], out hit2, Quaternion.identity, Mathf.Infinity, layer);
                             NewUnity.DrawBoxCastBox(checkPositions[i], AIGrid.instance.scaledCellSize/2, Quaternion.identity, checkPositions[i], Mathf.Infinity, Color.white);
-                            //if (i==0) Debug.Log($"{checkPositions[i]} hitDetction2 {hitDetction2} {(int)(Mathf.Log(layer.value, 2))} {LayerMask.LayerToName((int)(Mathf.Log(layer.value, 2)))}");
-                            //Debug.Log(checkPositions[0]);
                             if (hitDetction2)
                             {
-                                //Debug.Log("Hit Detected: " + hit2.collider.gameObject.name);
                                 ItemData itemData = hit2.collider.GetComponent<ItemData>(); 
                                 if (itemData != null)
                                 {
+                                    if (!NewUnity.ContainsV3(itemData.position, checkPositions[i]))
+                                    {
+                                        itemData.position.Add(checkPositions[i]);
+                                    }
+
                                     if (!seenItems.Contains(itemData))
                                     {
-                                        itemData.position = checkPositions[i];
                                         seenItems.Add(itemData);
-                                        seenItemPositions.Add(itemData.position);
-                                        lockedPositions.Add(itemData.position);
+                                    }
+                                    foreach (Vector3 pos in itemData.position)
+                                    {
+                                        if (!NewUnity.ContainsV3(seenItemPositions, pos)) seenItemPositions.Add(pos);
+                                        if (!NewUnity.ContainsV3(lockedPositions, pos)) lockedPositions.Add(pos);
                                     }
                                     if (true)
                                     {
@@ -481,7 +491,7 @@ protected virtual IEnumerator View()
                                 List<ItemData> tmpItems = seenItems;
                                 for (int j = 0; j < seenItems.Count; j++)
                                 {
-                                    if (seenItems[j].position == checkPositions[i]) tmpItems.Remove(seenItems[j]);
+                                    if (NewUnity.ContainsV3(seenItems[j].position,checkPositions[i])) tmpItems.Remove(seenItems[j]);
                                 }
                                 seenItems.Clear();
                                 seenItems = tmpItems;
@@ -543,6 +553,8 @@ protected virtual IEnumerator View()
                 pathCellPositionsBuffer.RemoveAt(0);
             }
         }
+
+        base.FollowPath();
         try
         {
             clearCalculatedPathVisualisation.Invoke();
@@ -552,12 +564,10 @@ protected virtual IEnumerator View()
         {
             foreach (Vector3 pos1 in pathCellPositions)
             {
-                VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.calculatedPath, gameObject);
+                if (enableMyVisualisations) VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.calculatedPath, gameObject);
             }
         }
         catch { }
-
-        base.FollowPath();
     }
 
     protected override void ColliderJump(Collision collision)
@@ -582,11 +592,11 @@ protected virtual IEnumerator View()
 
 
 
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 10; i++)
             {
                 try
                 {
-                    data = AIPathFindingCore.CalculatePathCore(pathTo, transform.position, 0);
+                    data = AIPathFindingCore.CalculatePathCore(pathTo, transform.position, 0, lockedPositions);
                     Debug.Log($"{pathCellPositions.Count} {data.pathCellPositions.Count} {characterY}");
                 }
                 catch { }

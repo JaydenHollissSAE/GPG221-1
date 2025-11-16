@@ -19,8 +19,10 @@ public class VisualisationSetter : MonoBehaviour
     public bool updateVisuals = true;
     private bool spawningQueueActive = false;
     public List<VisualisationSpawnData> spawningQueue = new List<VisualisationSpawnData>();
-    public Stack<GameObject> visualisationPool = new Stack<GameObject>();
+    public List<GameObject> visualisationPool = new List<GameObject>();
     public List<Vector3> activeVisualisationsPositions = new List<Vector3>();
+
+    public bool poolSet = false;
 
     public VisualisationPoolSpawner visualisationPoolSpawner;
 
@@ -194,7 +196,7 @@ public class VisualisationSetter : MonoBehaviour
         {
             if (visualisationPool.Count == 0)
             {
-                visualisationPoolSpawner.DoSpawn(1);
+                if (poolSet) visualisationPoolSpawner.DoSpawn(1);
                 yield return new WaitForSeconds(5f);
             }
             else
@@ -202,7 +204,8 @@ public class VisualisationSetter : MonoBehaviour
                 if (!activeVisualisationsPositions.Contains(spawningQueue[0].position))
                 {
                     activeVisualisationsPositions.Add(spawningQueue[0].position);
-                    GameObject spawned = visualisationPool.Pop();
+                    GameObject spawned = visualisationPool[0];
+                    visualisationPool.RemoveAt(0);
                     spawned.transform.parent = transform;
                     spawned.transform.position = spawningQueue[0].position;
                     spawned.transform.localScale = spawningQueue[0].size;
@@ -255,18 +258,18 @@ public class VisualisationSetter : MonoBehaviour
 
                 spawningQueue.RemoveAt(0);
                 spawnCount += 1;
-                if (spawnCount >= 5)
-                {
-                    spawnCount = 0;
-                    updateVisuals = true;
-                    yield return new WaitForSeconds(2f);
-                }
                 //yield return null;
-                updateVisuals = true;
-                spawningQueueActive = false;
             }
-            yield return null;
+            if (spawnCount >= 50)
+            {
+                spawnCount = 0;
+                updateVisuals = true;
+                yield return new WaitForSeconds(2f);
+            }
+
         }
+        updateVisuals = true;
+        spawningQueueActive = false;
         yield return null;
 
     }

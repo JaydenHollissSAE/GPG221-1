@@ -46,16 +46,16 @@ public class AIPathFindingCore : MonoBehaviour
             openCells.Add(currentCell);
 
         }
-        catch (Exception ex)// Indicates a failure with fetching the grid, so halts to go ahead
+        catch (Exception ex) // Indicates a failure with fetching the grid, so halts to go ahead
         {
-            Debug.Log(ex);
+            Debug.LogError(ex);
             calculatedPathData.failure = true;
             return calculatedPathData;
         }
         bool localPathCalculated = false;
         while (!localPathCalculated)
         {
-            Debug.Log("Start While");
+            //Debug.Log("Start While");
             AIGridCell shortest = null;
             checkingX = Mathf.FloorToInt(currentCell.position.x);
             checkingZ = Mathf.FloorToInt(currentCell.position.z);
@@ -108,7 +108,7 @@ public class AIPathFindingCore : MonoBehaviour
                                 }
                             }
                         }
-                        catch (Exception ex) { Debug.Log(ex); } // If error occurs, continue on like nothing happened. No need for extra check failsafe as if one isn't used, others are.
+                        catch (Exception ex) { Debug.LogError(ex); } // If error occurs, continue on like nothing happened. No need for extra check failsafe as if one isn't used, others are.
 
                     }
 
@@ -118,7 +118,7 @@ public class AIPathFindingCore : MonoBehaviour
             try
             {
                 // Reorders the cells in the lists for calculations
-                Debug.Log(shortest);
+                //Debug.Log(shortest);
                 if (shortest != null)
                 {
                     currentCell = shortest;
@@ -126,14 +126,14 @@ public class AIPathFindingCore : MonoBehaviour
                     calculatedPathData.pathCells.Add(currentCell);
                     calculatedPathData.cost = shortest.fCost;
                     calculatedPathData.pathCellPositions.Add(currentCell.position);
-                    Debug.Log("Shortest Run");
+                    //Debug.Log("Shortest Run");
                 }
                 else if (openCells.Count > 1)
                 {
                     closedCells.Add(openCells[openCells.Count - 1]);
                     openCells.RemoveAt(openCells.Count - 1);
                     currentCell = openCells[openCells.Count - 1];
-                    Debug.Log("Open Run");
+                    //Debug.Log("Open Run");
                 }
 
             }
@@ -189,5 +189,5 @@ public class ListBuffer
     public List<float> floatB;
     public List<string> stringB;
     public List<Vector2> vector2B;
-    //public List<ListBuffer> listBufferB;
+    //public List<ListBuffer> listBufferB; // Nesting in itself causes an overflow, preventing it from showing in the inspector
 }

@@ -72,7 +72,7 @@ public class VisualisationControl : MonoBehaviour
         ChangeMyRenderer(false);
         agent = null;
         //Destroy(this.gameObject);
-        VisualisationSetter.instance.visualisationPool.Push(this.gameObject);
+        VisualisationSetter.instance.visualisationPool.Add(this.gameObject);
         VisualisationSetter.instance.activeVisualisationsPositions.Remove(transform.position);
     }
 
@@ -124,6 +124,7 @@ public class VisualisationControl : MonoBehaviour
 
                     }
                 }
+                else Debug.LogError("No base found");
             }
 
         }

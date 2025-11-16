@@ -34,12 +34,13 @@ public class VisualisationPoolSpawner : MonoBehaviour
                 i++;
                 GameObject spawned = Instantiate(prefab);
                 spawned.transform.parent = pool.transform;
-                VisualisationSetter.instance.visualisationPool.Push(spawned); 
+                VisualisationSetter.instance.visualisationPool.Add(spawned); 
                 yield return new WaitForSeconds(spawnDelay);
             }
             yield return null;
         }
         yield return null;
+        VisualisationSetter.instance.poolSet = true;
 
     }
 }

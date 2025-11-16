@@ -72,8 +72,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e54dbbef1166814cb28a4108108dc5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnAmount: 100
-  spawnDelay: 1.5
+  spawnAmount: 2000
+  spawnDelay: 0.2
   prefab: {fileID: 3295625995548681486, guid: 5644b17ca1129b6468f95bb1111194ae, type: 3}
   spawnerEnabled: 1
   pool: {fileID: 6707524542419305760}
