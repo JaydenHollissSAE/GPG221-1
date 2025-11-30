@@ -149,7 +149,7 @@ public class AIPathFindingGround : AIPathFindingBase
 
             VisualisationSetter.instance.SpawnVisualisation(jumpPos, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.jump, gameObject);
 
-            int[] tmpPositions = new int[3] { Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z) };
+            int[] tmpPositions = new int[3] { Mathf.FloorToInt(collidedWith.x- AIGrid.instance.gameObject.transform.position.x), Mathf.FloorToInt(collidedWith.y- AIGrid.instance.gameObject.transform.position.y), Mathf.FloorToInt(collidedWith.z- AIGrid.instance.gameObject.transform.position.z) };
             AIGrid.GridStates state = AIGrid.instance.grid[tmpPositions[0], tmpPositions[1], tmpPositions[2]].state;
             //Debug.Log(state);
 

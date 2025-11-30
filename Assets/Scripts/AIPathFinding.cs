@@ -213,7 +213,7 @@ public class AIPathFinding : MonoBehaviour
             List<AIGridCell> closedCells = new List<AIGridCell>();
 
             // Cells are required to be ints, so the position is scaled down to them
-            Vector3 characterCellPos = new Vector3(Mathf.FloorToInt(transform.position.x), Mathf.FloorToInt(transform.position.y), Mathf.FloorToInt(transform.position.z));
+            Vector3 characterCellPos = new Vector3(Mathf.FloorToInt(transform.position.x - AIGrid.instance.gameObject.transform.position.x), Mathf.FloorToInt(transform.position.y - AIGrid.instance.gameObject.transform.position.y), Mathf.FloorToInt(transform.position.z - AIGrid.instance.gameObject.transform.position.z));
             int checkingX = (int)characterCellPos.x;
             int checkingY = (int)characterCellPos.y;
             int checkingZ = (int)characterCellPos.z;
@@ -247,8 +247,8 @@ public class AIPathFinding : MonoBehaviour
             {
                 if (!pathCalculated) break; // Failsafe for changing target
                 AIGridCell shortest = null;
-                checkingX = Mathf.FloorToInt(currentCell.position.x);
-                checkingZ = Mathf.FloorToInt(currentCell.position.z);
+                checkingX = Mathf.FloorToInt(currentCell.position.x - AIGrid.instance.gameObject.transform.position.x);
+                checkingZ = Mathf.FloorToInt(currentCell.position.z - AIGrid.instance.gameObject.transform.position.z);
                 int yloop = 1;
                 //int k = 0;
                 int valuesPassed = 0;
@@ -275,7 +275,7 @@ public class AIPathFinding : MonoBehaviour
                                     {
                                         checkingCell.hCost = Vector3.Distance(checkingCell.position, pathTo);
                                         if (k == 0) checkingCell.gCost = currentCell.gCost + Vector3.Distance(currentCell.position, checkingCell.position);
-                                        else checkingCell.gCost = currentCell.gCost + Vector3.Distance(AIGrid.instance.grid[Mathf.FloorToInt(currentCell.position.x), Mathf.FloorToInt(currentCell.position.y - (k * (int)AIGrid.instance.scaledCellSize.y)), Mathf.FloorToInt(currentCell.position.z)].position, checkingCell.position);
+                                        else checkingCell.gCost = currentCell.gCost + Vector3.Distance(AIGrid.instance.grid[Mathf.FloorToInt(currentCell.position.x - AIGrid.instance.gameObject.transform.position.x), Mathf.FloorToInt(currentCell.position.y - (k * (int)AIGrid.instance.scaledCellSize.y)- AIGrid.instance.gameObject.transform.position.y), Mathf.FloorToInt(currentCell.position.z- AIGrid.instance.gameObject.transform.position.z)].position, checkingCell.position);
                                         checkingCell.fCost = checkingCell.gCost + checkingCell.hCost + checkingCell.eCost;
                                         if (checkingCell.position == pathTo)
                                         {

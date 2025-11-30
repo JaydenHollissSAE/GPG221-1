@@ -77,6 +77,12 @@ public class AIGrid : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
 
+        Vector3 tmpPos = transform.position;
+        tmpPos.x = Mathf.FloorToInt(tmpPos.x);
+        tmpPos.y = Mathf.FloorToInt(tmpPos.y);
+        tmpPos.z = Mathf.FloorToInt(tmpPos.z);
+        transform.position = tmpPos;
+
         // List and array positions need to be ints not floats, so this forces them to be floats via rounding up to ensure they fit into the logic smoothly
         scaledCheckDistance = new Vector3(Mathf.CeilToInt(checkDistance.x), Mathf.CeilToInt(checkDistance.y), Mathf.CeilToInt(checkDistance.z));
         scaledCellSize = new Vector3(Mathf.CeilToInt(cellSize.x), Mathf.CeilToInt(cellSize.y), Mathf.CeilToInt(cellSize.z));
@@ -185,7 +191,7 @@ public class AIGrid : MonoBehaviour
                             // Sets cell at hit location as unwalkable
                             grid[x, y, z] = new AIGridCell();
                             grid[x, y, z].state = AIGrid.GridStates.unwalkable;
-                            grid[x, y, z].position = new Vector3(x, y, z);
+                            grid[x, y, z].position = new Vector3(x, y, z) + transform.position;
                             unwalkableGrid.Add(grid[x, y, z].position);
 
                             //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, AIGrid.States.unwalkable); // Disabled for build optimisation
@@ -193,14 +199,14 @@ public class AIGrid : MonoBehaviour
                             // Sets cells above at hit location as unwalkable
                             grid[x, y + (int)scaledCellSize.y, z] = new AIGridCell();
                             grid[x, y + (int)scaledCellSize.y, z].state = AIGrid.GridStates.unwalkable;
-                            grid[x, y + (int)scaledCellSize.y, z].position = new Vector3(x, y + (scaledCellSize.y), z);
+                            grid[x, y + (int)scaledCellSize.y, z].position = new Vector3(x, y + (scaledCellSize.y), z) + transform.position;
                             unwalkableGrid.Add(grid[x, y + (int)scaledCellSize.y, z].position);
 
                             //VisualisationSetter.instance.SpawnVisualisation(grid[x, y + (int)scaledCellSize.y, z].position, scaledCellSize, AIGrid.States.unwalkable); // Disabled for build optimisation
 
                             grid[x, y + ((int)scaledCellSize.y * 2), z] = new AIGridCell();
                             grid[x, y + ((int)scaledCellSize.y * 2), z].state = AIGrid.GridStates.unwalkable;
-                            grid[x, y + ((int)scaledCellSize.y * 2), z].position = new Vector3(x, y + (scaledCellSize.y * 2), z);
+                            grid[x, y + ((int)scaledCellSize.y * 2), z].position = new Vector3(x, y + (scaledCellSize.y * 2), z) + transform.position;
                             unwalkableGrid.Add(grid[x, y + ((int)scaledCellSize.y * 2), z].position);
 
                             //VisualisationSetter.instance.SpawnVisualisation(grid[x, y + ((int)scaledCellSize.y * 2), z].position, scaledCellSize, AIGrid.States.unwalkable); // Disabled for build optimisation
@@ -211,7 +217,7 @@ public class AIGrid : MonoBehaviour
                             {
                                 grid[x, y - (int)scaledCellSize.y, z] = new AIGridCell();
                                 grid[x, y - (int)scaledCellSize.y, z].state = AIGrid.GridStates.unwalkable;
-                                grid[x, y - (int)scaledCellSize.y, z].position = new Vector3(x, y + (scaledCellSize.y), z);
+                                grid[x, y - (int)scaledCellSize.y, z].position = new Vector3(x, y + (scaledCellSize.y), z) + transform.position;
                                 unwalkableGrid.Add(grid[x, y - (int)scaledCellSize.y, z].position);
 
                                 //VisualisationSetter.instance.SpawnVisualisation(grid[x, y - (int)scaledCellSize.y, z].position, scaledCellSize, AIGrid.States.unwalkable); // Disabled for build optimisation
@@ -235,7 +241,7 @@ public class AIGrid : MonoBehaviour
                             if (!Physics.CheckBox(new Vector3(x, y, z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as air if nothing is present in it
                             {
                                 grid[x, y, z].state = AIGrid.GridStates.air;
-                                grid[x, y, z].position = new Vector3(x, y, z);
+                                grid[x, y, z].position = new Vector3(x, y, z) + transform.position;
                                 airGrid.Add(grid[x, y, z].position);
 
                                 //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, AIGrid.States.air); // Disabled for build optimisation
@@ -245,7 +251,7 @@ public class AIGrid : MonoBehaviour
                             {
 
                                 grid[x, y, z].state = AIGrid.GridStates.walkable;
-                                grid[x, y, z].position = new Vector3(x, y, z);
+                                grid[x, y, z].position = new Vector3(x, y, z) + transform.position;
                                 walkableGrid.Add(grid[x, y, z]);
 
                                 //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, AIGrid.States.walkable); // Disabled for build optimisation
@@ -260,7 +266,7 @@ public class AIGrid : MonoBehaviour
                             else if (!Physics.CheckBox(new Vector3(x, y + (scaledCellSize.y * 2), z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as stairs if there is something in the cell above, but not in the one on top of it
                             {
                                 grid[x, y, z].state = AIGrid.GridStates.stairs;
-                                grid[x, y, z].position = new Vector3(x, y, z);
+                                grid[x, y, z].position = new Vector3(x, y, z) + transform.position;
 
                                 //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, AIGrid.States.stairs); // Disabled for build optimisation
 
@@ -277,7 +283,7 @@ public class AIGrid : MonoBehaviour
                             else // Runs if there is things detected in the two cells above, setting the cell as unwalkable
                             {
                                 grid[x, y, z].state = AIGrid.GridStates.unwalkable;
-                                grid[x, y, z].position = new Vector3(x, y, z);
+                                grid[x, y, z].position = new Vector3(x, y, z) + transform.position;
 
                                 //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, AIGrid.States.unwalkable); // Disabled for build optimisation
                             }
@@ -315,35 +321,35 @@ public class AIGrid : MonoBehaviour
                                     if (showVisualisationWalkable)
                                     {
                                         Gizmos.color = Color.green;
-                                        Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
+                                        Gizmos.DrawCube(grid[x, y, z].position, scaledCellSize);
                                     }
                                     break;
                                 case AIGrid.GridStates.stairs:
                                     if (showVisualisationStairs)
                                     {
                                         Gizmos.color = Color.yellow;
-                                        Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
+                                        Gizmos.DrawCube(grid[x, y, z].position, scaledCellSize);
                                     }
                                     break;
                                 case AIGrid.GridStates.unwalkable:
                                     if (showVisualisationUnwalkable)
                                     {
                                         Gizmos.color = Color.red;
-                                        Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
+                                        Gizmos.DrawCube(grid[x, y, z].position, scaledCellSize);
                                     }
                                     break;
                                 case AIGrid.GridStates.air:
                                     if (showVisualisationAir)
                                     {
                                         Gizmos.color = Color.magenta;
-                                        Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
+                                        Gizmos.DrawCube(grid[x, y, z].position, scaledCellSize);
                                     }
                                     break;
                                 default: //For showing errors
                                     if (showVisualisationError)
                                     {
                                         Gizmos.color = Color.blue;
-                                        Gizmos.DrawCube(new Vector3(x, y, z), scaledCellSize);
+                                        Gizmos.DrawCube(grid[x, y, z].position, scaledCellSize);
                                     }
                                     break;
                             }
