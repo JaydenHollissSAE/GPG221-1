@@ -129,10 +129,11 @@ public class AIPathFinding : MonoBehaviour
             {
                 int x = Random.Range(0, (int)AIGrid.instances[gridNo].scaledCheckDistance.x);
                 int z = Random.Range(0, (int)AIGrid.instances[gridNo].scaledCheckDistance.z);
-                if ((AIGrid.instances[gridNo].grid[x, localCharacterY, z].state == AIGrid.GridStates.stairs))
+                AIGridCell cell = AIGrid.instances[gridNo].grid[x, localCharacterY - (int)(AIGrid.instances[gridNo].transform.position.y), z];
+                if ((cell.state == AIGrid.GridStates.stairs))
                 {
                     //Debug.Log("Path found");
-                    pathTo = AIGrid.instances[gridNo].grid[x, localCharacterY, z].position;
+                    pathTo = cell.position;
                     break;
                 }
             }

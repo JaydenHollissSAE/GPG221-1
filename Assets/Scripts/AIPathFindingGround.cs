@@ -80,7 +80,7 @@ public class AIPathFindingGround : AIPathFindingBase
     {
         // Checks if anything is in the way of the character
         Vector3 outputPos = inputPos;
-        if (inputPos.y < characterY || AIGrid.instances[gridNo].grid[(int)inputPos.x, (int)inputPos.y, (int)inputPos.z].state == AIGrid.GridStates.stairs) return inputPos; // Returns without doing anything if the target position is below the character or the target cell is stairs
+        if (inputPos.y < characterY || AIGrid.instances[gridNo].grid[(int)(inputPos.x - AIGrid.instances[gridNo].transform.position.x), (int)(inputPos.y - AIGrid.instances[gridNo].transform.position.y), (int)(inputPos.z - AIGrid.instances[gridNo].transform.position.z)].state == AIGrid.GridStates.stairs) return inputPos; // Returns without doing anything if the target position is below the character or the target cell is stairs
         else
         {
             RaycastHit hit;
@@ -105,7 +105,7 @@ public class AIPathFindingGround : AIPathFindingBase
                     bool hitDetction2 = Physics.BoxCast(checkPos, AIGrid.instances[gridNo].scaledCellSize/2, checkPos, out hit2);
                     if (!hitDetction2) // If nothing hit, checks if the cell is able to be traversed, sets new target if able to be
                     {
-                        AIGrid.GridStates state = AIGrid.instances[gridNo].grid[(int)checkPos.x, (int)checkPos.y, (int)checkPos.z].state;
+                        AIGrid.GridStates state = AIGrid.instances[gridNo].grid[(int)(checkPos.x - AIGrid.instances[gridNo].transform.position.x), (int)(checkPos.y - AIGrid.instances[gridNo].transform.position.y), (int)(checkPos.z - AIGrid.instances[gridNo].transform.position.z)].state;
                         if (state == AIGrid.GridStates.stairs || state == AIGrid.GridStates.walkable)
                         {
                             outputPos = checkPos;
