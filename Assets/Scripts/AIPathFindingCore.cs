@@ -6,7 +6,7 @@ public class AIPathFindingCore : MonoBehaviour
 {
 
 
-    public static CalculatedPathData CalculatePathCore(Vector3 pathTo, Vector3 startPos, int pathResetCounter, List<Vector3> blockedPositions = null)
+    public static CalculatedPathData CalculatePathCore(Vector3 pathTo, Vector3 startPos, int pathResetCounter, int gridNo, List<Vector3> blockedPositions = null)
     {
         // Calculated as a Coroutine to prevent lag spikes via splitting it across ticks
 
@@ -28,16 +28,16 @@ public class AIPathFindingCore : MonoBehaviour
 
         // Cells are required to be ints, so the position is scaled down to them
         Vector3 characterCellPos = new Vector3(Mathf.FloorToInt(startPos.x), Mathf.FloorToInt(startPos.y), Mathf.FloorToInt(startPos.z));
-        int checkingX = (int)(characterCellPos.x - AIGrid.instance.gameObject.transform.position.x);
-        int checkingY = (int)(characterCellPos.y - AIGrid.instance.gameObject.transform.position.y);
-        int checkingZ = (int)(characterCellPos.z - AIGrid.instance.gameObject.transform.position.z);
+        int checkingX = (int)(characterCellPos.x - AIGrid.instances[gridNo].gameObject.transform.position.x);
+        int checkingY = (int)(characterCellPos.y - AIGrid.instances[gridNo].gameObject.transform.position.y);
+        int checkingZ = (int)(characterCellPos.z - AIGrid.instances[gridNo].gameObject.transform.position.z);
 
         AIGridCell currentCell = null;
         AIGridCell startCell = null;
 
         try
         {
-            currentCell = AIGrid.instance.grid[checkingX, checkingY, checkingZ];
+            currentCell = AIGrid.instances[gridNo].grid[checkingX, checkingY, checkingZ];
             currentCell.gCost = 0f;
             currentCell.hCost = 0f;
             startCell = currentCell;
@@ -55,8 +55,8 @@ public class AIPathFindingCore : MonoBehaviour
         {
             //Debug.Log("Start While");
             AIGridCell shortest = null;
-            checkingX = Mathf.FloorToInt(currentCell.position.x - AIGrid.instance.gameObject.transform.position.x);
-            checkingZ = Mathf.FloorToInt(currentCell.position.z - AIGrid.instance.gameObject.transform.position.z);
+            checkingX = Mathf.FloorToInt(currentCell.position.x - AIGrid.instances[gridNo].gameObject.transform.position.x);
+            checkingZ = Mathf.FloorToInt(currentCell.position.z - AIGrid.instances[gridNo].gameObject.transform.position.z);
             int yloop = 1;
             //int k = 0;
             int valuesPassed = 0;
@@ -74,16 +74,16 @@ public class AIPathFindingCore : MonoBehaviour
                         valuesPassed++;
                         try
                         {
-                            AIGridCell checkingCell = AIGrid.instance.grid[checkingX + i, checkingY - k, checkingZ + j]; // Gets cells around the character
+                            AIGridCell checkingCell = AIGrid.instances[gridNo].grid[checkingX + i, checkingY - k, checkingZ + j]; // Gets cells around the character
 
                             if (!openCells.Contains(checkingCell) && checkingCell != currentCell)
                             {
 
-                                if (!closedCells.Contains(checkingCell) && ((checkingCell.state == AIGrid.GridStates.walkable || checkingCell.state == AIGrid.GridStates.stairs) && (AIGrid.instance.grid[checkingX + i, checkingY - (int)AIGrid.instance.scaledCellSize.y, checkingZ + j] == null || AIGrid.instance.grid[checkingX + i, checkingY - 1, checkingZ + j].state != AIGrid.GridStates.air)) && !(NewUnity.ContainsV3(blockedPositions, checkingCell.position)))
+                                if (!closedCells.Contains(checkingCell) && ((checkingCell.state == AIGrid.GridStates.walkable || checkingCell.state == AIGrid.GridStates.stairs) && (AIGrid.instances[gridNo].grid[checkingX + i, checkingY - (int)AIGrid.instances[gridNo].scaledCellSize.y, checkingZ + j] == null || AIGrid.instances[gridNo].grid[checkingX + i, checkingY - 1, checkingZ + j].state != AIGrid.GridStates.air)) && !(NewUnity.ContainsV3(blockedPositions, checkingCell.position)))
                                 {
                                     checkingCell.hCost = Vector3.Distance(checkingCell.position, pathTo);
                                     if (k == 0) checkingCell.gCost = currentCell.gCost + Vector3.Distance(currentCell.position, checkingCell.position);
-                                    else checkingCell.gCost = currentCell.gCost + Vector3.Distance(AIGrid.instance.grid[Mathf.FloorToInt(currentCell.position.x - AIGrid.instance.gameObject.transform.position.x), Mathf.FloorToInt(currentCell.position.y - (k * (int)AIGrid.instance.scaledCellSize.y) -  AIGrid.instance.gameObject.transform.position.y), Mathf.FloorToInt(currentCell.position.z - AIGrid.instance.gameObject.transform.position.z)].position, checkingCell.position);
+                                    else checkingCell.gCost = currentCell.gCost + Vector3.Distance(AIGrid.instances[gridNo].grid[Mathf.FloorToInt(currentCell.position.x - AIGrid.instances[gridNo].gameObject.transform.position.x), Mathf.FloorToInt(currentCell.position.y - (k * (int)AIGrid.instances[gridNo].scaledCellSize.y) -  AIGrid.instances[gridNo].gameObject.transform.position.y), Mathf.FloorToInt(currentCell.position.z - AIGrid.instances[gridNo].gameObject.transform.position.z)].position, checkingCell.position);
                                     checkingCell.fCost = checkingCell.gCost + checkingCell.hCost + checkingCell.eCost;
                                     if (checkingCell.position == pathTo)
                                     {

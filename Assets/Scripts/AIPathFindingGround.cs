@@ -19,7 +19,7 @@ public class AIPathFindingGround : AIPathFindingBase
 
     protected virtual void FollowPath()
     {
-        if (!awaitCalculation && !AIGrid.instance.disableMove) // Checks if the logic is allowing the character to move
+        if (!awaitCalculation && !AIGrid.instances[gridNo].disableMove) // Checks if the logic is allowing the character to move
         {
             if (pathCellPositions.Count > 0) // Ensures a path exists to follow
             {
@@ -80,11 +80,11 @@ public class AIPathFindingGround : AIPathFindingBase
     {
         // Checks if anything is in the way of the character
         Vector3 outputPos = inputPos;
-        if (inputPos.y < characterY || AIGrid.instance.grid[(int)inputPos.x, (int)inputPos.y, (int)inputPos.z].state == AIGrid.GridStates.stairs) return inputPos; // Returns without doing anything if the target position is below the character or the target cell is stairs
+        if (inputPos.y < characterY || AIGrid.instances[gridNo].grid[(int)inputPos.x, (int)inputPos.y, (int)inputPos.z].state == AIGrid.GridStates.stairs) return inputPos; // Returns without doing anything if the target position is below the character or the target cell is stairs
         else
         {
             RaycastHit hit;
-            bool hitDetction = Physics.BoxCast(new Vector3(inputPos.x, inputPos.y, inputPos.z), AIGrid.instance.scaledCellSize/2, new Vector3(inputPos.x, inputPos.y, inputPos.z), out hit); // Checks if anything exists in the target cell
+            bool hitDetction = Physics.BoxCast(new Vector3(inputPos.x, inputPos.y, inputPos.z), AIGrid.instances[gridNo].scaledCellSize/2, new Vector3(inputPos.x, inputPos.y, inputPos.z), out hit); // Checks if anything exists in the target cell
             if (hitDetction)
             {
                 // Checks next to the cell on either the X or Z value depending on the next cell position
@@ -93,19 +93,19 @@ public class AIPathFindingGround : AIPathFindingBase
                     Vector3 checkPos;
                     if (nextInputPos.x != inputPos.x)
                     {
-                        checkPos = new Vector3(inputPos.x + (AIGrid.instance.scaledCellSize.x * i), inputPos.y, inputPos.z);
+                        checkPos = new Vector3(inputPos.x + (AIGrid.instances[gridNo].scaledCellSize.x * i), inputPos.y, inputPos.z);
                     }
                     else
                     {
-                        checkPos = new Vector3(inputPos.x, inputPos.y, inputPos.z + (AIGrid.instance.scaledCellSize.z * i));
+                        checkPos = new Vector3(inputPos.x, inputPos.y, inputPos.z + (AIGrid.instances[gridNo].scaledCellSize.z * i));
                     }
 
                     // Checks if something exists in the cell next to it
                     RaycastHit hit2;
-                    bool hitDetction2 = Physics.BoxCast(checkPos, AIGrid.instance.scaledCellSize/2, checkPos, out hit2);
+                    bool hitDetction2 = Physics.BoxCast(checkPos, AIGrid.instances[gridNo].scaledCellSize/2, checkPos, out hit2);
                     if (!hitDetction2) // If nothing hit, checks if the cell is able to be traversed, sets new target if able to be
                     {
-                        AIGrid.GridStates state = AIGrid.instance.grid[(int)checkPos.x, (int)checkPos.y, (int)checkPos.z].state;
+                        AIGrid.GridStates state = AIGrid.instances[gridNo].grid[(int)checkPos.x, (int)checkPos.y, (int)checkPos.z].state;
                         if (state == AIGrid.GridStates.stairs || state == AIGrid.GridStates.walkable)
                         {
                             outputPos = checkPos;
@@ -137,7 +137,7 @@ public class AIPathFindingGround : AIPathFindingBase
         if (collision.transform.position.y >= characterY)
         {
             Vector3 collidedWith = transform.position;
-            Vector3 adjustBy = AIGrid.instance.scaledCellSize;
+            Vector3 adjustBy = AIGrid.instances[gridNo].scaledCellSize;
             if (collision.contacts[0].point.x < transform.position.x) adjustBy.x *= -1;
             adjustBy.y = 0f;
             if (collision.contacts[0].point.z < transform.position.z) adjustBy.z *= -1;
@@ -147,17 +147,17 @@ public class AIPathFindingGround : AIPathFindingBase
 
             jumpPos = new Vector3(Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z));
 
-            VisualisationSetter.instance.SpawnVisualisation(jumpPos, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.jump, gameObject);
+            VisualisationSetter.instance.SpawnVisualisation(jumpPos, AIGrid.instances[gridNo].scaledCellSize, VisualisationSetter.VisualisationStates.jump, gameObject);
 
-            int[] tmpPositions = new int[3] { Mathf.FloorToInt(collidedWith.x- AIGrid.instance.gameObject.transform.position.x), Mathf.FloorToInt(collidedWith.y- AIGrid.instance.gameObject.transform.position.y), Mathf.FloorToInt(collidedWith.z- AIGrid.instance.gameObject.transform.position.z) };
-            AIGrid.GridStates state = AIGrid.instance.grid[tmpPositions[0], tmpPositions[1], tmpPositions[2]].state;
+            int[] tmpPositions = new int[3] { Mathf.FloorToInt(collidedWith.x- AIGrid.instances[gridNo].gameObject.transform.position.x), Mathf.FloorToInt(collidedWith.y- AIGrid.instances[gridNo].gameObject.transform.position.y), Mathf.FloorToInt(collidedWith.z- AIGrid.instances[gridNo].gameObject.transform.position.z) };
+            AIGrid.GridStates state = AIGrid.instances[gridNo].grid[tmpPositions[0], tmpPositions[1], tmpPositions[2]].state;
             //Debug.Log(state);
 
             AIGrid.GridStates state2 = AIGrid.GridStates.invalid;
             
             try
             {
-                state2 = AIGrid.instance.grid[tmpPositions[0], tmpPositions[1] - 1, tmpPositions[2]].state;
+                state2 = AIGrid.instances[gridNo].grid[tmpPositions[0], tmpPositions[1] - 1, tmpPositions[2]].state;
             }
             catch { }
 

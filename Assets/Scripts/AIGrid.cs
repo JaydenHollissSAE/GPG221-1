@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class AIGrid : MonoBehaviour
 {
 
     public static AIGrid instance;
+    public static List<AIGrid> instances = new List<AIGrid>();
     public bool disableMove = false;
 
     public Vector3 checkDistance = new Vector3(60f, 60f, 60f);
@@ -24,6 +26,8 @@ public class AIGrid : MonoBehaviour
     public List<AIGridCell> stairsGrid = new List<AIGridCell>();
     public List<Vector3> unwalkableGrid = new List<Vector3>();
     public List<Vector3> airGrid = new List<Vector3>();
+
+    public int gridNo = 0;
 
     public enum GridStates
     {
@@ -71,10 +75,27 @@ public class AIGrid : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null)
+        if (gridNo != 0) return;
+        StartingLogic();
+    }
+
+    private void Start()
+    {
+        if (gridNo != 1) return;
+        StartingLogic();
+    }
+
+    void StartingLogic()
+    {
+        //if (instance == null)
+        //{
+        //    instance = this;
+        //    DontDestroyOnLoad(gameObject);
+        //}
+
+        if (!instances.Contains(this))
         {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
+            instances.Add(this);
         }
 
         Vector3 tmpPos = transform.position;
@@ -93,6 +114,8 @@ public class AIGrid : MonoBehaviour
 
         GenerateGrid();
     }
+
+
 
     private void OnDestroy()
     {

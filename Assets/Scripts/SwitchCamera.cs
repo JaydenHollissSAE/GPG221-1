@@ -17,7 +17,13 @@ public class SwitchCamera : MonoBehaviour
 
     private void Awake()
     {
-        instance = this;
+        if (instance == null) instance = this;   
+        else Destroy(this);
+    }
+
+    private void OnDestroy()
+    {
+        if (instance == this) instance = null;
     }
 
 

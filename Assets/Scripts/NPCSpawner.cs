@@ -9,6 +9,8 @@ public class NPCSpawner : MonoBehaviour
 
     public bool spawnerEnabled = true;
 
+    public int gridNo = 0;
+
     void Start()
     {
         StartCoroutine(Spawn(spawnAmount));
@@ -32,7 +34,7 @@ public class NPCSpawner : MonoBehaviour
 
                 i++;
                 GameObject spawned = Instantiate(prefab);
-                spawned.transform.position = AIGrid.instance.walkableGrid[Random.Range(0, AIGrid.instance.walkableGrid.Count)].position; // Spawns in a random walkable cell
+                spawned.transform.position = AIGrid.instances[gridNo].walkableGrid[Random.Range(0, AIGrid.instances[gridNo].walkableGrid.Count)].position; // Spawns in a random walkable cell
                 spawned.transform.parent = transform;
                 if (SwitchCamera.instance.isAllCameras)
                 {

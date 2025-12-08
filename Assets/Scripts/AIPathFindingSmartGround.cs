@@ -120,9 +120,9 @@ public class AIPathFindingSmartGround : AIPathFindingGround
             startWander = false;
 
             // Ensures the code doesn't try going outside of the supported area in the grid
-            int[] xBounds = new int[2] { AIGrid.instance.grid.GetLowerBound(0), AIGrid.instance.grid.GetUpperBound(0) };
-            int[] zBounds = new int[2] { AIGrid.instance.grid.GetLowerBound(2), AIGrid.instance.grid.GetUpperBound(2) };
-            int[] yBounds = new int[2] { AIGrid.instance.grid.GetLowerBound(1), AIGrid.instance.grid.GetUpperBound(1) };
+            int[] xBounds = new int[2] { AIGrid.instances[gridNo].grid.GetLowerBound(0), AIGrid.instances[gridNo].grid.GetUpperBound(0) };
+            int[] zBounds = new int[2] { AIGrid.instances[gridNo].grid.GetLowerBound(2), AIGrid.instances[gridNo].grid.GetUpperBound(2) };
+            int[] yBounds = new int[2] { AIGrid.instances[gridNo].grid.GetLowerBound(1), AIGrid.instances[gridNo].grid.GetUpperBound(1) };
             
             List<Vector3> checkedPositions = new List<Vector3>();
 
@@ -138,7 +138,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
             {
                 if (localcharacterY > yBounds[0] && localcharacterY < yBounds[1])
                 {
-                    AIGridCell tmpCell = AIGrid.instance.grid[UnityEngine.Random.Range(xBounds[0], xBounds[1]), localcharacterY, UnityEngine.Random.Range(zBounds[0], zBounds[1])];
+                    AIGridCell tmpCell = AIGrid.instances[gridNo].grid[UnityEngine.Random.Range(xBounds[0], xBounds[1]), localcharacterY, UnityEngine.Random.Range(zBounds[0], zBounds[1])];
                     if (!NewUnity.ContainsV3(checkedPositions, tmpCell.position))
                     {
                         checkedPositions.Add(tmpCell.position);
@@ -153,7 +153,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                             {
                                 try
                                 {
-                                    pathData = AIPathFindingCore.CalculatePathCore(tmpCell.position, localPosition, 0, lockedPositions);
+                                    pathData = AIPathFindingCore.CalculatePathCore(tmpCell.position, localPosition, 0, gridNo, lockedPositions);
                                 }
                                 catch { }
                                 if (pathData != null && !pathData.failure) break;
@@ -213,7 +213,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                     {
                         try
                         {
-                            pathData = AIPathFindingCore.CalculatePathCore(item.position[0], transform.position, 0);
+                            pathData = AIPathFindingCore.CalculatePathCore(item.position[0], transform.position, 0, gridNo);
                         }
                         catch { }
                         if (pathData != null && !pathData.failure) break;
@@ -238,7 +238,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                 {
                     try
                     {
-                        pathData2 = AIPathFindingCore.CalculatePathCore(pathTo, shortestKey.position[0], 0);
+                        pathData2 = AIPathFindingCore.CalculatePathCore(pathTo, shortestKey.position[0], 0, gridNo);
                     }
                     catch { }
                     if (pathData2 != null && !pathData2.failure) break;
@@ -266,7 +266,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
             {
                 try
                 {
-                    pathData3 = AIPathFindingCore.CalculatePathCore(pathTo, transform.position, 0, invalidPoints);
+                    pathData3 = AIPathFindingCore.CalculatePathCore(pathTo, transform.position, 0, gridNo, invalidPoints);
                 }
                 catch { }
                 if (pathData3 != null && !pathData3.failure) break;
@@ -445,14 +445,14 @@ public class AIPathFindingSmartGround : AIPathFindingGround
                 // Checks if any of the seen cells contained an item
                 for (int i = 0; i < checkPositions.Count; i++)
                 {
-                    if (!NewUnity.ContainsV3(AIGrid.instance.unwalkableGrid, checkPositions[i])) // Unwalkable can't contain anything or be interacted with, so no need to check
+                    if (!NewUnity.ContainsV3(AIGrid.instances[gridNo].unwalkableGrid, checkPositions[i])) // Unwalkable can't contain anything or be interacted with, so no need to check
                     {
                         foreach (LayerMask layer in viewableLayers)
                         {
                             // Checks the cell on the layer
                             RaycastHit hit2;
-                            bool hitDetction2 = Physics.BoxCast(checkPositions[i], AIGrid.instance.scaledCellSize/2, checkPositions[i], out hit2, Quaternion.identity, Mathf.Infinity, layer);
-                            NewUnity.DrawBoxCastBox(checkPositions[i], AIGrid.instance.scaledCellSize/2, Quaternion.identity, checkPositions[i], Mathf.Infinity, Color.white);
+                            bool hitDetction2 = Physics.BoxCast(checkPositions[i], AIGrid.instances[gridNo].scaledCellSize/2, checkPositions[i], out hit2, Quaternion.identity, Mathf.Infinity, layer);
+                            NewUnity.DrawBoxCastBox(checkPositions[i], AIGrid.instances[gridNo].scaledCellSize/2, Quaternion.identity, checkPositions[i], Mathf.Infinity, Color.white);
                             if (hitDetction2)
                             {
                                 ItemData itemData = hit2.collider.GetComponent<ItemData>(); 
@@ -521,15 +521,15 @@ public class AIPathFindingSmartGround : AIPathFindingGround
     {
         // Cell type visualisation through Gizmos
 
-        if (AIGrid.instance != null)
+        if (AIGrid.instances[gridNo] != null)
         {
-            if (AIGrid.instance.showVisualisations)
+            if (AIGrid.instances[gridNo].showVisualisations)
             {
                 for (int i = 0; i < currentLookingAt.Count; i += 1)
                 {
                     if (i > 0) Gizmos.color = new Color(1, 0, 1);
                     else Gizmos.color = new Color(0, 0, 0); // First is black for debugging purposes
-                    Gizmos.DrawCube(currentLookingAt[i], AIGrid.instance.scaledCellSize);
+                    Gizmos.DrawCube(currentLookingAt[i], AIGrid.instances[gridNo].scaledCellSize);
                 }
             }
 
@@ -564,7 +564,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
         {
             foreach (Vector3 pos1 in pathCellPositions)
             {
-                if (enableMyVisualisations) VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.calculatedPath, gameObject);
+                if (enableMyVisualisations) VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instances[gridNo].scaledCellSize, VisualisationSetter.VisualisationStates.calculatedPath, gameObject);
             }
         }
         catch { }
@@ -596,7 +596,7 @@ public class AIPathFindingSmartGround : AIPathFindingGround
             {
                 try
                 {
-                    data = AIPathFindingCore.CalculatePathCore(pathTo, transform.position, 0, lockedPositions);
+                    data = AIPathFindingCore.CalculatePathCore(pathTo, transform.position, 0, gridNo, lockedPositions);
                     Debug.Log($"{pathCellPositions.Count} {data.pathCellPositions.Count} {characterY}");
                 }
                 catch { }

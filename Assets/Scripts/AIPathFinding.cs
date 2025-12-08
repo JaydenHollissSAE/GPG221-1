@@ -35,6 +35,8 @@ public class AIPathFinding : MonoBehaviour
     public UnityEvent clearCalculatedPathVisualisation;
     public UnityEvent clearJumpVisualisation;
 
+    public int gridNo = 0;
+
 
 
     [Tooltip("Allow Gizmos to be shown for this AI object")]
@@ -60,7 +62,7 @@ public class AIPathFinding : MonoBehaviour
 
         characterY = (int)Mathf.Floor(transform.position.y);
 
-        if (!settingPath && (goal != pastGoal || ((goal.y >= characterY && characterY != pathTo.y) || (goal.y < characterY && characterY - (int)AIGrid.instance.scaledCellSize.y * 2 != pathTo.y)) || pathTo == Vector3.zero || characterY == 10000000 || Input.GetKeyDown(KeyCode.LeftShift))) // Left Shift used as debug control to force a change
+        if (!settingPath && (goal != pastGoal || ((goal.y >= characterY && characterY != pathTo.y) || (goal.y < characterY && characterY - (int)AIGrid.instances[gridNo].scaledCellSize.y * 2 != pathTo.y)) || pathTo == Vector3.zero || characterY == 10000000 || Input.GetKeyDown(KeyCode.LeftShift))) // Left Shift used as debug control to force a change
         {
             settingPath = true;
             pastGoal = goal;
@@ -93,7 +95,7 @@ public class AIPathFinding : MonoBehaviour
         int localCharacterY = characterY;
         if (localCharacterY == 10000000) localCharacterY = (int)Mathf.Floor(transform.position.y);
         //Debug.Log("Set Path");
-        //if (Mathf.Abs(goal.y - transform.position.y) >= AIGrid.instance.scaledCellSize.y/2)
+        //if (Mathf.Abs(goal.y - transform.position.y) >= AIGrid.instances[gridNo].scaledCellSize.y/2)
         
         // If the character's Y position is the same as the goal, the pathTo step value is set to the goal
         if (localCharacterY == goal.y)
@@ -106,15 +108,15 @@ public class AIPathFinding : MonoBehaviour
 
             if (goal.y < localCharacterY) // If the goal is below the character the pathTo value needs to be going downwards
             {
-                localCharacterY -= (int)AIGrid.instance.scaledCellSize.y*2; // Needed or pathTo gets stuck in platforms and freaks out
-                //localCharacterY -= (int)AIGrid.instance.scaledCellSize.y; // Has to be the size of 2 cells rather than 1 or the goal is stuck in the floor and can't be path finded to
+                localCharacterY -= (int)AIGrid.instances[gridNo].scaledCellSize.y*2; // Needed or pathTo gets stuck in platforms and freaks out
+                //localCharacterY -= (int)AIGrid.instances[gridNo].scaledCellSize.y; // Has to be the size of 2 cells rather than 1 or the goal is stuck in the floor and can't be path finded to
             }
 
             bool validStairs = false;
 
             // Checks if there are stairs on the desired level which the character can path find to
             // This is just a check. The sequential nature causes selection issues if used
-            foreach (AIGridCell pos in AIGrid.instance.stairsGrid)
+            foreach (AIGridCell pos in AIGrid.instances[gridNo].stairsGrid)
             {
                 if (pos.position.y == localCharacterY)
                 {
@@ -125,19 +127,19 @@ public class AIPathFinding : MonoBehaviour
             // Selects a random stair on the correct Y to path find to. Doesn't need to be exact as it is just for getting to a different layer, so randomness is the most effective way.
             while (validStairs)
             {
-                int x = Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.x);
-                int z = Random.Range(0, (int)AIGrid.instance.scaledCheckDistance.z);
-                if ((AIGrid.instance.grid[x, localCharacterY, z].state == AIGrid.GridStates.stairs))
+                int x = Random.Range(0, (int)AIGrid.instances[gridNo].scaledCheckDistance.x);
+                int z = Random.Range(0, (int)AIGrid.instances[gridNo].scaledCheckDistance.z);
+                if ((AIGrid.instances[gridNo].grid[x, localCharacterY, z].state == AIGrid.GridStates.stairs))
                 {
                     //Debug.Log("Path found");
-                    pathTo = AIGrid.instance.grid[x, localCharacterY, z].position;
+                    pathTo = AIGrid.instances[gridNo].grid[x, localCharacterY, z].position;
                     break;
                 }
             }
         }
 
 
-        VisualisationSetter.instance.SpawnVisualisation(pathTo, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.pathTo, gameObject);
+        VisualisationSetter.instance.SpawnVisualisation(pathTo, AIGrid.instances[gridNo].scaledCellSize, VisualisationSetter.VisualisationStates.pathTo, gameObject);
             
 
         settingPath = false;
@@ -213,7 +215,7 @@ public class AIPathFinding : MonoBehaviour
             List<AIGridCell> closedCells = new List<AIGridCell>();
 
             // Cells are required to be ints, so the position is scaled down to them
-            Vector3 characterCellPos = new Vector3(Mathf.FloorToInt(transform.position.x - AIGrid.instance.gameObject.transform.position.x), Mathf.FloorToInt(transform.position.y - AIGrid.instance.gameObject.transform.position.y), Mathf.FloorToInt(transform.position.z - AIGrid.instance.gameObject.transform.position.z));
+            Vector3 characterCellPos = new Vector3(Mathf.FloorToInt(transform.position.x - AIGrid.instances[gridNo].gameObject.transform.position.x), Mathf.FloorToInt(transform.position.y - AIGrid.instances[gridNo].gameObject.transform.position.y), Mathf.FloorToInt(transform.position.z - AIGrid.instances[gridNo].gameObject.transform.position.z));
             int checkingX = (int)characterCellPos.x;
             int checkingY = (int)characterCellPos.y;
             int checkingZ = (int)characterCellPos.z;
@@ -222,7 +224,7 @@ public class AIPathFinding : MonoBehaviour
             AIGridCell startCell = null;
             try
             {
-                currentCell = AIGrid.instance.grid[checkingX, checkingY, checkingZ];
+                currentCell = AIGrid.instances[gridNo].grid[checkingX, checkingY, checkingZ];
 
             }
             catch { }
@@ -231,7 +233,7 @@ public class AIPathFinding : MonoBehaviour
             if (currentCell == null) yield return new WaitForSeconds(2f); // Indicates that the grid is not made yet, so waits for 2 seconds as a failsafe
             try
             {
-                currentCell = AIGrid.instance.grid[checkingX, checkingY, checkingZ];
+                currentCell = AIGrid.instances[gridNo].grid[checkingX, checkingY, checkingZ];
                 currentCell.gCost = 0f;
                 currentCell.hCost = 0f;
                 startCell = currentCell;
@@ -247,8 +249,8 @@ public class AIPathFinding : MonoBehaviour
             {
                 if (!pathCalculated) break; // Failsafe for changing target
                 AIGridCell shortest = null;
-                checkingX = Mathf.FloorToInt(currentCell.position.x - AIGrid.instance.gameObject.transform.position.x);
-                checkingZ = Mathf.FloorToInt(currentCell.position.z - AIGrid.instance.gameObject.transform.position.z);
+                checkingX = Mathf.FloorToInt(currentCell.position.x - AIGrid.instances[gridNo].gameObject.transform.position.x);
+                checkingZ = Mathf.FloorToInt(currentCell.position.z - AIGrid.instances[gridNo].gameObject.transform.position.z);
                 int yloop = 1;
                 //int k = 0;
                 int valuesPassed = 0;
@@ -266,16 +268,16 @@ public class AIPathFinding : MonoBehaviour
                             valuesPassed++;
                             try
                             {
-                                AIGridCell checkingCell = AIGrid.instance.grid[checkingX + i, checkingY - k, checkingZ + j]; // Gets cells around the character
+                                AIGridCell checkingCell = AIGrid.instances[gridNo].grid[checkingX + i, checkingY - k, checkingZ + j]; // Gets cells around the character
 
                                 if (!openCells.Contains(checkingCell) && checkingCell != currentCell)
                                 {
 
-                                    if (!closedCells.Contains(checkingCell) && ((checkingCell.state == AIGrid.GridStates.walkable || checkingCell.state == AIGrid.GridStates.stairs) && (AIGrid.instance.grid[checkingX + i, checkingY - (int)AIGrid.instance.scaledCellSize.y, checkingZ + j] == null || AIGrid.instance.grid[checkingX + i, checkingY - 1, checkingZ + j].state != AIGrid.GridStates.air)))
+                                    if (!closedCells.Contains(checkingCell) && ((checkingCell.state == AIGrid.GridStates.walkable || checkingCell.state == AIGrid.GridStates.stairs) && (AIGrid.instances[gridNo].grid[checkingX + i, checkingY - (int)AIGrid.instances[gridNo].scaledCellSize.y, checkingZ + j] == null || AIGrid.instances[gridNo].grid[checkingX + i, checkingY - 1, checkingZ + j].state != AIGrid.GridStates.air)))
                                     {
                                         checkingCell.hCost = Vector3.Distance(checkingCell.position, pathTo);
                                         if (k == 0) checkingCell.gCost = currentCell.gCost + Vector3.Distance(currentCell.position, checkingCell.position);
-                                        else checkingCell.gCost = currentCell.gCost + Vector3.Distance(AIGrid.instance.grid[Mathf.FloorToInt(currentCell.position.x - AIGrid.instance.gameObject.transform.position.x), Mathf.FloorToInt(currentCell.position.y - (k * (int)AIGrid.instance.scaledCellSize.y)- AIGrid.instance.gameObject.transform.position.y), Mathf.FloorToInt(currentCell.position.z- AIGrid.instance.gameObject.transform.position.z)].position, checkingCell.position);
+                                        else checkingCell.gCost = currentCell.gCost + Vector3.Distance(AIGrid.instances[gridNo].grid[Mathf.FloorToInt(currentCell.position.x - AIGrid.instances[gridNo].gameObject.transform.position.x), Mathf.FloorToInt(currentCell.position.y - (k * (int)AIGrid.instances[gridNo].scaledCellSize.y)- AIGrid.instances[gridNo].gameObject.transform.position.y), Mathf.FloorToInt(currentCell.position.z- AIGrid.instances[gridNo].gameObject.transform.position.z)].position, checkingCell.position);
                                         checkingCell.fCost = checkingCell.gCost + checkingCell.hCost + checkingCell.eCost;
                                         if (checkingCell.position == pathTo)
                                         {
@@ -339,7 +341,7 @@ public class AIPathFinding : MonoBehaviour
 
                 foreach (Vector3 pos1 in pathCellPositions)
                 {
-                    VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.calculatedPath, gameObject);
+                    VisualisationSetter.instance.SpawnVisualisation(pos1, AIGrid.instances[gridNo].scaledCellSize, VisualisationSetter.VisualisationStates.calculatedPath, gameObject);
                 }
 
             }
@@ -357,7 +359,7 @@ public class AIPathFinding : MonoBehaviour
 
     void FollowPath()
     {
-        if (!awaitCalculation && !AIGrid.instance.disableMove) // Checks if the logic is allowing the character to move
+        if (!awaitCalculation && !AIGrid.instances[gridNo].disableMove) // Checks if the logic is allowing the character to move
         {
             if (pathCellPositions.Count > 0) // Ensures a path exists to follow
             {
@@ -411,11 +413,11 @@ public class AIPathFinding : MonoBehaviour
     {
         // Checks if anything is in the way of the character
         Vector3 outputPos = inputPos;
-        if (inputPos.y < characterY || AIGrid.instance.grid[(int)inputPos.x, (int)inputPos.y, (int)inputPos.z].state == AIGrid.GridStates.stairs) return inputPos; // Returns without doing anything if the target position is below the character or the target cell is stairs
+        if (inputPos.y < characterY || AIGrid.instances[gridNo].grid[(int)inputPos.x, (int)inputPos.y, (int)inputPos.z].state == AIGrid.GridStates.stairs) return inputPos; // Returns without doing anything if the target position is below the character or the target cell is stairs
         else
         {
             RaycastHit hit;
-            bool hitDetction = Physics.BoxCast(new Vector3(inputPos.x, inputPos.y, inputPos.z), AIGrid.instance.scaledCellSize, Vector3.zero, out hit); // Checks if anything exists in the target cell
+            bool hitDetction = Physics.BoxCast(new Vector3(inputPos.x, inputPos.y, inputPos.z), AIGrid.instances[gridNo].scaledCellSize, Vector3.zero, out hit); // Checks if anything exists in the target cell
             if (hitDetction)
             {
                 // Checks next to the cell on either the X or Z value depending on the next cell position
@@ -424,19 +426,19 @@ public class AIPathFinding : MonoBehaviour
                     Vector3 checkPos;
                     if (nextInputPos.x != inputPos.x)
                     {
-                        checkPos = new Vector3(inputPos.x + (AIGrid.instance.scaledCellSize.x * i), inputPos.y, inputPos.z);
+                        checkPos = new Vector3(inputPos.x + (AIGrid.instances[gridNo].scaledCellSize.x * i), inputPos.y, inputPos.z);
                     }
                     else
                     {
-                        checkPos = new Vector3(inputPos.x, inputPos.y, inputPos.z + (AIGrid.instance.scaledCellSize.z * i));
+                        checkPos = new Vector3(inputPos.x, inputPos.y, inputPos.z + (AIGrid.instances[gridNo].scaledCellSize.z * i));
                     }
 
                     // Checks if something exists in the cell next to it
                     RaycastHit hit2;
-                    bool hitDetction2 = Physics.BoxCast(checkPos, AIGrid.instance.scaledCellSize, Vector3.zero, out hit2);
+                    bool hitDetction2 = Physics.BoxCast(checkPos, AIGrid.instances[gridNo].scaledCellSize, Vector3.zero, out hit2);
                     if (!hitDetction2) // If nothing hit, checks if the cell is able to be traversed, sets new target if able to be
                     {
-                        AIGrid.GridStates state = AIGrid.instance.grid[(int)checkPos.x, (int)checkPos.y, (int)checkPos.z].state;
+                        AIGrid.GridStates state = AIGrid.instances[gridNo].grid[(int)checkPos.x, (int)checkPos.y, (int)checkPos.z].state;
                         if (state == AIGrid.GridStates.stairs || state == AIGrid.GridStates.walkable)
                         {
                             outputPos = checkPos;
@@ -476,7 +478,7 @@ public class AIPathFinding : MonoBehaviour
     void SetGoal()
     {
         // Simple goal setting based on walkable locations
-        if (AIGrid.instance.walkableGrid.Count > 0)
+        if (AIGrid.instances[gridNo].walkableGrid.Count > 0)
         {
             Vector3 tmpGoal = goal;
             clearGoalVisualisation.Invoke();
@@ -484,9 +486,9 @@ public class AIPathFinding : MonoBehaviour
 
 
 
-            goal = AIGrid.instance.walkableGrid[Random.Range(0, AIGrid.instance.walkableGrid.Count)].position;
+            goal = AIGrid.instances[gridNo].walkableGrid[Random.Range(0, AIGrid.instances[gridNo].walkableGrid.Count)].position;
 
-            VisualisationSetter.instance.SpawnVisualisation(goal, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.goal, gameObject);
+            VisualisationSetter.instance.SpawnVisualisation(goal, AIGrid.instances[gridNo].scaledCellSize, VisualisationSetter.VisualisationStates.goal, gameObject);
         }
         
         settingGoal = false;
@@ -497,32 +499,32 @@ public class AIPathFinding : MonoBehaviour
     //private void OnDrawGizmos()
     //{
     //    // Gizmos control based on individual variable and global variable
-    //    if (enableMyVisualisations && AIGrid.instance != null && AIGrid.instance.showGizmos)
+    //    if (enableMyVisualisations && AIGrid.instances[gridNo] != null && AIGrid.instances[gridNo].showGizmos)
     //    {
 
-    //        if (goal != Vector3.zero && AIGrid.instance.showVisualisationGoal)
+    //        if (goal != Vector3.zero && AIGrid.instances[gridNo].showVisualisationGoal)
     //        {
     //            Gizmos.color = Color.cyan;
-    //            Gizmos.DrawCube(goal, AIGrid.instance.scaledCellSize);
+    //            Gizmos.DrawCube(goal, AIGrid.instances[gridNo].scaledCellSize);
     //        }
-    //        if (pathTo != Vector3.zero && AIGrid.instance.showVisualisationPathTo)
+    //        if (pathTo != Vector3.zero && AIGrid.instances[gridNo].showVisualisationPathTo)
     //        {
     //            //Debug.Log("Display PathTo");
     //            Gizmos.color = Color.black;
-    //            Gizmos.DrawCube(pathTo, AIGrid.instance.scaledCellSize);
+    //            Gizmos.DrawCube(pathTo, AIGrid.instances[gridNo].scaledCellSize);
     //        }
-    //        if (jumpPos != Vector3.zero && AIGrid.instance.showVisualisationJump)
+    //        if (jumpPos != Vector3.zero && AIGrid.instances[gridNo].showVisualisationJump)
     //        {
     //            //Debug.Log("Display PathTo");
     //            Gizmos.color = new Color(0.5f,0.5f,0.5f);
-    //            Gizmos.DrawCube(jumpPos, AIGrid.instance.scaledCellSize);
+    //            Gizmos.DrawCube(jumpPos, AIGrid.instances[gridNo].scaledCellSize);
     //        }
-    //        if (pathCellPositions.Count > 0 && AIGrid.instance.showVisualisationCalculatedPath)
+    //        if (pathCellPositions.Count > 0 && AIGrid.instances[gridNo].showVisualisationCalculatedPath)
     //        {
     //            for (int i = 0; i < pathCellPositions.Count; i++)
     //            {
     //                Gizmos.color = new Color(1, 0.5f, 0);
-    //                Gizmos.DrawCube(pathCellPositions[i], AIGrid.instance.scaledCellSize);
+    //                Gizmos.DrawCube(pathCellPositions[i], AIGrid.instances[gridNo].scaledCellSize);
 
     //            }
 
@@ -548,7 +550,7 @@ public class AIPathFinding : MonoBehaviour
         if (collision.transform.position.y >= characterY)
         {
             Vector3 collidedWith = transform.position;
-            Vector3 adjustBy = AIGrid.instance.scaledCellSize;
+            Vector3 adjustBy = AIGrid.instances[gridNo].scaledCellSize;
             if (collision.contacts[0].point.x < transform.position.x) adjustBy.x *= -1;
             adjustBy.y = 0f;
             if (collision.contacts[0].point.z < transform.position.z) adjustBy.z *= -1;
@@ -558,10 +560,10 @@ public class AIPathFinding : MonoBehaviour
 
             jumpPos = new Vector3(Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z));
 
-            VisualisationSetter.instance.SpawnVisualisation(jumpPos, AIGrid.instance.scaledCellSize, VisualisationSetter.VisualisationStates.jump, gameObject);
+            VisualisationSetter.instance.SpawnVisualisation(jumpPos, AIGrid.instances[gridNo].scaledCellSize, VisualisationSetter.VisualisationStates.jump, gameObject);
 
 
-            AIGrid.GridStates state = AIGrid.instance.grid[Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z)].state;
+            AIGrid.GridStates state = AIGrid.instances[gridNo].grid[Mathf.FloorToInt(collidedWith.x), Mathf.FloorToInt(collidedWith.y), Mathf.FloorToInt(collidedWith.z)].state;
             //Debug.Log(state);
             if (state == AIGrid.GridStates.stairs)
             {

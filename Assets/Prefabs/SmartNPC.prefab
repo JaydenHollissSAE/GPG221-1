@@ -905,6 +905,7 @@ MonoBehaviour:
   clearJumpVisualisation:
     m_PersistentCalls:
       m_Calls: []
+  gridNo: 1
   enableMyVisualisations: 1
   bobHead: 0
   seenCells: []

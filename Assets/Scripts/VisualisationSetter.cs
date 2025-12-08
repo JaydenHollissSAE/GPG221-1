@@ -26,6 +26,8 @@ public class VisualisationSetter : MonoBehaviour
 
     public VisualisationPoolSpawner visualisationPoolSpawner;
 
+    public int gridNo;
+
     /// <summary>
     /// Different types of visualisations
     /// </summary>
@@ -81,7 +83,7 @@ public class VisualisationSetter : MonoBehaviour
             try 
             {
                 VisualisationControl control = controlObj.GetComponent<VisualisationControl>();
-                if (AIGrid.instance.showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instance.showVisualisationUnwalkable);
+                if (AIGrid.instances[gridNo].showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instances[gridNo].showVisualisationUnwalkable);
                 else control.ChangeMyRenderer(false);
             } catch {}
         }
@@ -91,7 +93,7 @@ public class VisualisationSetter : MonoBehaviour
             try 
             {
                 VisualisationControl control = controlObj.GetComponent<VisualisationControl>();
-                if (AIGrid.instance.showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instance.showVisualisationStairs);
+                if (AIGrid.instances[gridNo].showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instances[gridNo].showVisualisationStairs);
                 else control.ChangeMyRenderer(false);
             } catch {}
         }
@@ -101,7 +103,7 @@ public class VisualisationSetter : MonoBehaviour
             try 
             {
                 VisualisationControl control = controlObj.GetComponent<VisualisationControl>();
-                if (AIGrid.instance.showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instance.showVisualisationWalkable);
+                if (AIGrid.instances[gridNo].showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instances[gridNo].showVisualisationWalkable);
                 else control.ChangeMyRenderer(false);
             } catch {}
         }
@@ -111,7 +113,7 @@ public class VisualisationSetter : MonoBehaviour
             try 
             {
                 VisualisationControl control = controlObj.GetComponent<VisualisationControl>();
-                if (AIGrid.instance.showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instance.showVisualisationAir);
+                if (AIGrid.instances[gridNo].showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instances[gridNo].showVisualisationAir);
                 else control.ChangeMyRenderer(false);
             } catch {}
         }
@@ -121,7 +123,7 @@ public class VisualisationSetter : MonoBehaviour
             try 
             {
                 VisualisationControl control = controlObj.GetComponent<VisualisationControl>();
-                if (AIGrid.instance.showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instance.showVisualisationCalculatedPath);
+                if (AIGrid.instances[gridNo].showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instances[gridNo].showVisualisationCalculatedPath);
                 else control.ChangeMyRenderer(false);
             } catch {}
         }
@@ -131,7 +133,7 @@ public class VisualisationSetter : MonoBehaviour
             try 
             {
                 VisualisationControl control = controlObj.GetComponent<VisualisationControl>();
-                if (AIGrid.instance.showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instance.showVisualisationJump);
+                if (AIGrid.instances[gridNo].showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instances[gridNo].showVisualisationJump);
                 else control.ChangeMyRenderer(false);
             } catch {}
         }
@@ -141,7 +143,7 @@ public class VisualisationSetter : MonoBehaviour
             try 
             {
                 VisualisationControl control = controlObj.GetComponent<VisualisationControl>();
-                if (AIGrid.instance.showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instance.showVisualisationGoal);
+                if (AIGrid.instances[gridNo].showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instances[gridNo].showVisualisationGoal);
                 else control.ChangeMyRenderer(false);
             } catch {}
         }
@@ -151,7 +153,7 @@ public class VisualisationSetter : MonoBehaviour
             try 
             {
                 VisualisationControl control = controlObj.GetComponent<VisualisationControl>();
-                if (AIGrid.instance.showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instance.showVisualisationPathTo);
+                if (AIGrid.instances[gridNo].showVisualisations && control.imEnabled) control.ChangeMyRenderer(AIGrid.instances[gridNo].showVisualisationPathTo);
                 else control.ChangeMyRenderer(false);
             } catch {}
         }
