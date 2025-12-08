@@ -97,6 +97,10 @@ public class AIGrid : MonoBehaviour
         {
             instances.Add(this);
         }
+        if (instances.Count >= gridNo)
+        {
+            instances.Add(this);
+        }
 
         Vector3 tmpPos = transform.position;
         tmpPos.x = Mathf.FloorToInt(tmpPos.x);
