@@ -168,12 +168,12 @@ public class AIGrid : MonoBehaviour
         if (grid == null) grid = new AIGridCell[Mathf.CeilToInt(checkDistance.x), Mathf.CeilToInt(checkDistance.y), Mathf.CeilToInt(checkDistance.z)];
         walkableGrid.Clear();
         stairsGrid.Clear();
-        
+
         // Order of operations for loops matter. y needs to be the highest so it does the logic for all whole floor before moving onto the next one
 
         for (int y = 0; y < scaledCheckDistance.y; y += Mathf.CeilToInt(cellSize.y))
         {
-            for (int x = 0; x < scaledCheckDistance.x; x+=Mathf.CeilToInt(cellSize.x))
+            for (int x = 0; x < scaledCheckDistance.x; x += Mathf.CeilToInt(cellSize.x))
             {
                 for (int z = 0; z < scaledCheckDistance.z; z += Mathf.CeilToInt(cellSize.z))
                 {
@@ -186,7 +186,7 @@ public class AIGrid : MonoBehaviour
 
 
 
-                        if (Physics.CheckBox(new Vector3(x, y, z), scaledCellSize, Quaternion.identity, layer))
+                        if (Physics.CheckBox(new Vector3(x, y, z) + transform.position, scaledCellSize, Quaternion.identity, layer))
                         {
                             // Sets cell at hit location as unwalkable
                             grid[x, y, z] = new AIGridCell();
@@ -238,7 +238,7 @@ public class AIGrid : MonoBehaviour
                             //Debug.Log($"{((int)layer.value)} {LayerMask.LayerToName((int)((int)layer.value))}");
 
                             grid[x, y, z] = new AIGridCell();
-                            if (!Physics.CheckBox(new Vector3(x, y, z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as air if nothing is present in it
+                            if (!Physics.CheckBox(new Vector3(x, y, z) + transform.position, scaledCellSize, Quaternion.identity, layer)) // Sets the cell as air if nothing is present in it
                             {
                                 grid[x, y, z].state = AIGrid.GridStates.air;
                                 grid[x, y, z].position = new Vector3(x, y, z) + transform.position;
@@ -247,7 +247,7 @@ public class AIGrid : MonoBehaviour
                                 //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, AIGrid.States.air); // Disabled for build optimisation
 
                             }
-                            else if (!Physics.CheckBox(new Vector3(x, y + scaledCellSize.y, z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as walkable if there is nothing in the above cell
+                            else if (!Physics.CheckBox(new Vector3(x, y + scaledCellSize.y, z) + transform.position, scaledCellSize, Quaternion.identity, layer)) // Sets the cell as walkable if there is nothing in the above cell
                             {
 
                                 grid[x, y, z].state = AIGrid.GridStates.walkable;
@@ -257,13 +257,13 @@ public class AIGrid : MonoBehaviour
                                 //VisualisationSetter.instance.SpawnVisualisation(grid[x, y, z].position, scaledCellSize, AIGrid.States.walkable); // Disabled for build optimisation
 
                                 RaycastHit hit;
-                                bool hitDetction = Physics.BoxCast(new Vector3(x, y, z), scaledCellSize/2, new Vector3(x, y, z), out hit);
+                                bool hitDetction = Physics.BoxCast(new Vector3(x, y, z) + transform.position, scaledCellSize / 2, new Vector3(x, y, z), out hit);
                                 if (hitDetction)
                                 {
                                     if (extraCostsNames.Contains(hit.transform.tag)) grid[x, y, z].eCost = extraCosts[extraCostsNames.IndexOf(hit.transform.tag)].cost;
                                 }
                             }
-                            else if (!Physics.CheckBox(new Vector3(x, y + (scaledCellSize.y * 2), z), scaledCellSize, Quaternion.identity, layer)) // Sets the cell as stairs if there is something in the cell above, but not in the one on top of it
+                            else if (!Physics.CheckBox(new Vector3(x, y + (scaledCellSize.y * 2), z) + transform.position, scaledCellSize, Quaternion.identity, layer)) // Sets the cell as stairs if there is something in the cell above, but not in the one on top of it
                             {
                                 grid[x, y, z].state = AIGrid.GridStates.stairs;
                                 grid[x, y, z].position = new Vector3(x, y, z) + transform.position;
@@ -272,13 +272,13 @@ public class AIGrid : MonoBehaviour
 
                                 stairsGrid.Add(grid[x, y, z]);
                                 RaycastHit hit;
-                                bool hitDetction = Physics.BoxCast(new Vector3(x, y + scaledCellSize.y, z), scaledCellSize/2, new Vector3(x, y + scaledCellSize.y, z), out hit);
+                                bool hitDetction = Physics.BoxCast(new Vector3(x, y + scaledCellSize.y, z) + transform.position, scaledCellSize / 2, new Vector3(x, y + scaledCellSize.y, z), out hit);
                                 if (hitDetction)
                                 {
                                     if (extraCostsNames.Contains(hit.transform.tag)) grid[x, y, z].eCost = extraCosts[extraCostsNames.IndexOf(hit.transform.tag)].cost;
                                 }
                             }
-                            
+
 
                             else // Runs if there is things detected in the two cells above, setting the cell as unwalkable
                             {
@@ -291,7 +291,7 @@ public class AIGrid : MonoBehaviour
 
                     }
 
-                    
+
 
 
                 }
@@ -377,7 +377,7 @@ public class AIGrid : MonoBehaviour
             case "jump":
                 showVisualisationJump = !showVisualisationJump;
                 break;
-            default: 
+            default:
                 break;
         }
     }
